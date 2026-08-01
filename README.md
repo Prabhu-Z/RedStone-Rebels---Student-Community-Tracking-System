@@ -4,6 +4,84 @@
 
 ---
 
+## 🏆 Project Team & Credits
+
+### 🚩 **Team Name:** RedStone Rebels
+
+| Role | Name | Position |
+| :--- | :--- | :--- |
+| **👑 Team Leader** | **Pavithra U** | Project Lead & Architecture |
+| **👨‍💻 Team Member** | **Prabhu A** | Full-Stack Core Engineer |
+| **👨‍💻 Team Member** | **Nithick S** | Backend & Database Systems |
+
+---
+
+## 🛠️ Repository Fix Applied for Evaluators (Universal `mvnw.cmd`)
+
+> ✅ **FIXED:** The repository `mvnw.cmd` script has been updated to remove hardcoded user paths (`C:\Users\prabh\...`). It now dynamically resolves `%USERPROFILE%` and system `%PATH%` so `mvnw.cmd` and `start_app.bat` work out-of-the-box on **ANY evaluator's computer**.
+
+---
+
+## 📥 Direct 1-Click Download Links for Evaluators & Staff
+
+If you need to install Java, Node.js, or Apache Maven on your machine, click the **Direct Download Links** below:
+
+### 1️⃣ **Java JDK 21 (Java Development Kit)**
+* 🔗 **Direct Windows 64-Bit Installer (.exe):**  
+  [👉 Click Here to Download Java JDK 21 Direct Installer (.exe)](https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.exe)
+* 🌐 **Official Java Page:** [Oracle JDK 21 Downloads](https://www.oracle.com/java/technologies/downloads/#java21)
+
+---
+
+### 2️⃣ **Node.js LTS (v20.x)**
+* 🔗 **Direct Windows 64-Bit Installer (.msi):**  
+  [👉 Click Here to Download Node.js LTS Direct Installer (.msi)](https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi)
+* 🌐 **Official Node.js Page:** [Node.js Official Downloads](https://nodejs.org/en/download/)
+
+---
+
+### 3️⃣ **Apache Maven (ZIP Download & PATH Setup)**
+* 🔗 **Direct Apache Maven Binary Zip Download (.zip):**  
+  [👉 Click Here to Download Apache Maven 3.9.6 Zip Package (.zip)](https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip)
+* 🌐 **Official Apache Maven Download Page:** [Apache Maven Download Page](https://maven.apache.org/download.cgi)
+
+#### **Quick 3-Step Apache Maven Installation Guide for Staff:**
+1. Download the Apache Maven Zip file from the link above.
+2. Extract the zip file (e.g. to `C:\Program Files\Apache\Maven`).
+3. Add `C:\Program Files\Apache\Maven\bin` to your Windows **System PATH** environment variable.
+4. Verify by opening a new Command Prompt and running: `mvn -version`
+
+---
+
+## ⚡ How to Open and Run the Application (1-Click)
+
+### 🚀 **Step 1: Open the Project Folder**
+Open File Explorer to the project main directory:
+```
+scts/
+ ├── start_app.bat   <--- 👈 DOUBLE CLICK THIS FILE!
+```
+
+### 🚀 **Step 2: Double Click `start_app.bat`**
+Double-click **`start_app.bat`**. It will automatically:
+1. Start the Spring Boot Backend Server on `http://localhost:8080`.
+2. Start the React Vite Frontend UI on `http://localhost:5173`.
+3. Automatically open your web browser to **`http://localhost:5173`**!
+
+---
+
+## 🔑 Evaluator Test Login Credentials
+
+Once the browser opens at `http://localhost:5173`, use any of these pre-configured accounts:
+
+| Role | Username / Email | Password | Access Scope |
+| :--- | :--- | :--- | :--- |
+| 🎓 **Student** | `student@scts.edu` | `password` | Joined Communities, Tasks, Events (+1 Pt), Activity Claims, Leaderboard |
+| 🛡️ **Coordinator** | `coordinator@scts.edu` | `password` | Coding Club Coordinator Dashboard, Deliverable Verification (+3/+5 Pts), Activity Requests |
+| 🏆 **Faculty Admin** | `faculty@scts.edu` | `password` | College Dashboard, Task Governance, 30+ Communities Participation Analytics |
+
+---
+
 ## 🌟 System Overview
 
 **SCTS (Smart Campus Extracurricular & Community Tracking System)** is an end-to-end web application engineered for universities and colleges to streamline extracurricular activities, student community memberships, event management, and task deliverables across 30+ campus communities.
@@ -132,144 +210,6 @@ erDiagram
 
 ---
 
-## 🛠️ Technology Stack
-
-| Layer | Technologies Used |
-| :--- | :--- |
-| **Frontend Core** | React 18, Vite, React Router v6, TailwindCSS |
-| **Data Visualization & Icons** | Recharts (Responsive Pie & Bar Charts), Lucide React Icons |
-| **Backend Core** | Java 21, Spring Boot 3.2.3, Spring Data JPA, Spring Security |
-| **Database** | In-Memory H2 Database (`jdbc:h2:mem:sctsdb`), Hibernate ORM |
-| **Authentication** | JWT (JSON Web Tokens) with Stateless Security Filter Chain |
-| **Reports & Export** | HTML5 Print API / CSS Paged Media PDF Engine |
-
----
-
-## 👥 User Roles & Access Control Matrix
-
-```mermaid
-graph TD
-    A[Faculty Admin] -->|Proposes Community Tasks| B(Community Coordinator)
-    A -->|Monitors 30+ Community Analytics| D[College Dashboards]
-    B -->|Creates Daily Tasks & Verifies Proofs| C(Student)
-    B -->|Publishes Events & Grants Points| C
-    C -->|Registers Events & Submits Proofs| B
-    C -->|Submits Activity Achievement Claims| B
-```
-
-### 1️⃣ 🎓 **Student Role**
-- **Dashboard & Portfolio**: View academic details, overall attendance percentage, verified volunteer hours, and total gamification points.
-- **My Joined Communities**: Browse and request membership for 30+ campus communities.
-- **Task Deliverables (`/student/tasks`)**: Submit task proofs (URL link or file) for **Faculty Community Tasks (+5 Pts)** and **Coordinator Daily Tasks (+3 Pts)**.
-- **Events & Registration (`/student/events`)**:
-  - Participate in 🌐 **Global Campus Events** (Open to all students, **+1 Pt**).
-  - Participate in 🔒 **Community Events** (Strictly private to approved community members).
-- **Activity Requests (`/student/activity-requests`)**: Submit individual achievement claims (external hackathon wins, research papers, certifications) to community coordinators for custom point evaluations.
-- **Activity Timeline (`/student/timeline`)**: Track registered events and verified task submissions chronologically.
-- **Leaderboards (`/student/leaderboard`)**: View real-time rank positions across individual communities and campus-wide.
-
-### 2️⃣ 🛡️ **Community Coordinator Role**
-- **Coordinator Dashboard (`/coordinator/dashboard`)**:
-  - Review live **Community Participation Analytics** (*Task Verifications Breakdown, Active Member Participation Rate, Task Category Distribution*).
-  - Approve or decline pending student membership requests.
-- **Task Assignments (`/coordinator/tasks`)**:
-  - Accept Faculty Community Tasks proposed by Faculty.
-  - Create **Daily Tasks** for community members.
-  - Verify student task proof submissions (+3 Pts or +5 Pts awarded).
-  - Finalize and submit completed Community Task packages to Admin.
-- **Event Management (`/coordinator/events`)**: Create & publish 🔒 **Community Events** or 🌐 **Global Events**, and inspect registered student rosters.
-- **Activity Requests Review (`/coordinator/activity-requests`)**: Review student achievement claims, assign custom gamification points (+5, +10, +15, +20 Pts), and provide feedback notes.
-- **Community Reports (`/coordinator/reports`)**: Export official community activity summaries.
-
-### 3️⃣ 🏆 **Faculty Admin Role**
-- **College Dashboard (`/faculty/dashboard`)**: Track overall campus participation metrics, total registrations, and top active communities.
-- **Task Oversight (`/faculty/dashboard`)**: Propose campus-wide Community Tasks across all 30+ communities.
-- **Participation Analytics (`/faculty/analytics`)**: Select any of the 30+ campus communities to inspect real-time Recharts data graphs for task deliverables, proof verifications, and active member rates.
-- **Coordinator & Student Search (`/faculty/coordinator-search`, `/faculty/student-search`)**: Audit student portfolios and search coordinator contact details.
-
----
-
-## 🎯 Gamification & Point Evaluation Rules
-
-| Activity Type | Point Weight | Verification & Rules |
-| :--- | :--- | :--- |
-| 🎟️ **Event Registration** | **+1 Point** | Awarded automatically upon registering for any valid event. |
-| 📅 **Coordinator Daily Task** | **+3 Points** | Created by Coordinator ➔ Verified by Coordinator upon proof submission. |
-| 🏛️ **Faculty Community Task** | **+5 Points** | Proposed by Faculty ➔ Accepted by Coordinator ➔ Verified by Coordinator (+5 Pts) ➔ Submitted to Admin. |
-| 🏆 **Activity Achievement Claim** | **Custom Points (+5 to +50 Pts)** | Submitted by student for external hackathons/certifications ➔ Custom points evaluated and granted by Coordinator. |
-
----
-
-## ⚡ Key Feature Highlights
-
-- **Dynamic Recharts Data Visualizations**: Custom Tooltip contrast styling, `<Legend />` positioning, and empty-state fallbacks to eliminate `NaN` / `0/0` SVG chart errors.
-- **Real-Time Notification System**: Unread badge count and instant mark-all-as-read API.
-- **PDF Portfolio Generation**: Printable official student transcripts and community reports.
-
----
-
-## 🚀 Quickstart & Setup Guide
-
-### 1. Prerequisites
-- **Java Development Kit (JDK 21 or higher)**
-- **Node.js (v18.0.0 or higher) & npm**
-- **Apache Maven (Wrapper included)**
-
----
-
-### 2. Running the Backend Server (Spring Boot)
-
-Navigating to the backend project directory:
-```bash
-cd scts/backend
-```
-
-Build and test-compile the application:
-```bash
-./mvnw clean test-compile
-```
-
-Run the Spring Boot application (Server runs on `http://localhost:8080`):
-```bash
-./mvnw spring-boot:run
-```
-
-*Note: H2 Database console is available at `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:sctsdb`, Username: `SA`, Password: `[blank]`).*
-
----
-
-### 3. Running the Frontend Dev Server (Vite + React)
-
-Navigate to the frontend project directory:
-```bash
-cd scts/frontend
-```
-
-Install NPM dependencies:
-```bash
-npm install
-```
-
-Start the Vite development server (Runs on `http://localhost:5173`):
-```bash
-npm run dev
-```
-
----
-
-## 🔑 Default Seed Credentials for Testing
-
-The system automatically initializes seed data upon startup with the following test credentials:
-
-| Role | Username / Email | Password | Access Scope |
-| :--- | :--- | :--- | :--- |
-| **Student** | `student@scts.edu` | `password` | Joined Communities, Tasks, Events, Activity Claims, Leaderboard |
-| **Coordinator** | `coordinator@scts.edu` | `password` | Coding Club Coordinator Dashboard, Deliverable Verification, Event Creation |
-| **Faculty** | `faculty@scts.edu` | `password` | College Dashboard, Task Governance, 30+ Communities Participation Analytics |
-
----
-
 ## 📄 License & System Status
 
-Designed & Developed for **Smart Campus Extracurricular Tracking Systems (SCTS)**.
-All features audited and verified for production compatibility.
+Designed & Developed by **Team RedStone Rebels** for **Smart Campus Extracurricular Tracking Systems (SCTS)**.
