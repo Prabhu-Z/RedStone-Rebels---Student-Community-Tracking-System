@@ -1,31 +1,20 @@
 # 🚀 How to Run & Open the SCTS Application Easily
 
-> **Evaluator Startup Guide & Zero-Install Instructions for SCTS (Smart Campus Extracurricular System)**
+> **Evaluator & Zero-Setup Launch Guide for SCTS (Smart Campus Extracurricular System)**
 
 ---
 
-## ⚡ Zero-Install Setup for Teachers & Evaluators
+## 🛠️ Zero-Setup Improvements Applied
 
-🎉 **NO MAVEN INSTALLATION REQUIRED!**  
-The project's **`mvnw.cmd`** script includes an automated 1-click PowerShell downloader. The evaluating teacher or staff member does **NOT** need to install Apache Maven or set any PATH environment variables. 
+1. **Backend Maven Wrapper (`mvnw.cmd`)**:
+   - Fixed `no main manifest attribute` error by invoking `org.apache.maven.wrapper.MavenWrapperMain` via classpath `-classpath .mvn/wrapper/maven-wrapper.jar`.
+   - Included physical `maven-wrapper.jar` inside the repository.
+   - **No Apache Maven download or PATH setup required!**
 
-Simply double-click **`start_app.bat`** and the system handles Maven automatically!
-
----
-
-## 📥 Direct 1-Click Download Links (If Java JDK 21 or Node.js is needed)
-
-If your machine needs Java JDK 21 or Node.js, click the **Direct Download Links** below:
-
-### 1️⃣ **Java JDK 21 (Java Development Kit)**
-* 🔗 **Direct Windows 64-Bit Installer (.exe):**  
-  [👉 Click Here to Download Java JDK 21 Direct Installer (.exe)](https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.exe)
-
----
-
-### 2️⃣ **Node.js LTS (v20.x)**
-* 🔗 **Direct Windows 64-Bit Installer (.msi):**  
-  [👉 Click Here to Download Node.js LTS Direct Installer (.msi)](https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi)
+2. **Frontend `npm.cmd` & PowerShell ExecutionPolicy Bypass**:
+   - Updated `start_app.bat` to call `npm.cmd` explicitly instead of `npm`.
+   - This completely bypasses Windows PowerShell `Restricted` ExecutionPolicy (`npm.ps1` script errors).
+   - Auto-checks for `node_modules\vite` and runs `npm.cmd install` automatically if missing.
 
 ---
 
@@ -39,9 +28,29 @@ scts/
 ```
 
 ### What happens automatically:
-1. It automatically launches the **Spring Boot Backend Engine** on `http://localhost:8080`.
-2. It automatically launches the **Vite React Frontend UI** on `http://localhost:5173`.
-3. It automatically opens your web browser to **`http://localhost:5173`** in 5 seconds!
+1. Automatically checks for frontend dependencies and runs `npm.cmd install` if needed.
+2. Automatically launches the **Spring Boot Backend Engine** on `http://localhost:8080`.
+3. Automatically launches the **Vite React Frontend UI** on `http://localhost:5173`.
+4. Automatically opens your web browser to **`http://localhost:5173`** in 5 seconds!
+
+---
+
+## 💻 Method 2: Manual Terminal Launch
+
+If launching manually via Command Prompt (`cmd`):
+
+### Step 1: Start Backend
+```cmd
+cd backend
+mvnw.cmd spring-boot:run
+```
+
+### Step 2: Start Frontend
+```cmd
+cd frontend
+npm.cmd install
+npm.cmd run dev
+```
 
 ---
 
