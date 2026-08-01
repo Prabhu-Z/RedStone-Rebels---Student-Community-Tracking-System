@@ -12,7 +12,7 @@ start "SCTS Backend Engine (Port 8080)" cmd /k "cd /d "%~dp0backend" && mvnw.cmd
 
 echo.
 echo [2/2] Launching Vite Frontend UI Server (Port 5173)...
-start "SCTS Frontend UI (Port 5173)" cmd /k "cd /d "%~dp0frontend" && (if not exist "node_modules\vite" call npm.cmd install) && npm.cmd run dev"
+start "SCTS Frontend UI (Port 5173)" cmd /k "cd /d "%~dp0frontend" && (if not exist "node_modules\vite" call npm.cmd install) && npx.cmd vite"
 
 echo.
 echo ===============================================================
