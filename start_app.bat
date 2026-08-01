@@ -7,21 +7,12 @@ echo                 Team RedStone Rebels
 echo ===============================================================
 echo.
 
-IF EXIST "%~dp0frontend\node_modules\vite" GOTO :LAUNCH
-
-echo [INFO] First time setup: Installing frontend dependencies...
-cd /d "%~dp0frontend"
-call npm.cmd install
-cd /d "%~dp0"
-echo.
-
-:LAUNCH
 echo [1/2] Launching Spring Boot Backend Engine (Port 8080)...
 start "SCTS Backend Engine (Port 8080)" cmd /k "cd /d "%~dp0backend" && mvnw.cmd spring-boot:run"
 
 echo.
 echo [2/2] Launching Vite Frontend UI Server (Port 5173)...
-start "SCTS Frontend UI (Port 5173)" cmd /k "cd /d "%~dp0frontend" && npm.cmd run dev"
+start "SCTS Frontend UI (Port 5173)" cmd /k "cd /d "%~dp0frontend" && (if not exist "node_modules\vite" call npm.cmd install) && npm.cmd run dev"
 
 echo.
 echo ===============================================================
