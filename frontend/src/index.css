@@ -1,0 +1,162 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black text-[#E2E2E8] font-sans antialiased min-h-screen selection:bg-[#F2CA50] selection:text-[#3C2F00];
+    background-color: #000000 !important;
+  }
+
+  /* Compact Refined Headings */
+  h1, h2, h3, h4, h5, h6, .font-serif {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
+    letter-spacing: -0.025em !important;
+    font-weight: 800;
+  }
+
+  p, span, div, button, input, select, textarea {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Material Symbols Icon Setup */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* Homepage Obsidian Glass Panels */
+.glass-panel {
+  background: rgba(18, 18, 22, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Interactive Glass Cards with Gold Hover Highlight */
+.glass-card {
+  background: linear-gradient(145deg, rgba(22, 22, 28, 0.75) 0%, rgba(10, 10, 14, 0.9) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card:hover {
+  border-color: rgba(242, 202, 80, 0.55);
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.85), 0 0 30px rgba(242, 202, 80, 0.35);
+}
+
+/* Interactive Light Sweep Overlay on Card Hover */
+.glass-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(242, 202, 80, 0.2) 50%,
+    rgba(255, 255, 255, 0.05) 55%,
+    transparent 100%
+  );
+  transform: rotate(30deg) translateX(-100%);
+  transition: transform 0.75s ease;
+  pointer-events: none;
+}
+
+.glass-card:hover::after {
+  transform: rotate(30deg) translateX(100%);
+}
+
+/* Homepage Header & Sidebar Glassmorphism */
+.navbar-glass {
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.sidebar-glass {
+  background: linear-gradient(180deg, rgba(14, 14, 18, 0.96) 0%, rgba(0, 0, 0, 0.98) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Homepage Celestial Gold Glow & Buttons */
+.gold-glow {
+  box-shadow: 0 0 20px rgba(242, 202, 80, 0.4);
+  transition: box-shadow 0.3s ease;
+}
+
+.gold-glow:hover {
+  box-shadow: 0 0 35px rgba(242, 202, 80, 0.65);
+}
+
+.honey-btn {
+  background: linear-gradient(135deg, #F2CA50 0%, #FFE088 100%);
+  color: #3C2F00;
+  font-weight: 800;
+  box-shadow: 0 4px 20px rgba(242, 202, 80, 0.45);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.honey-btn:hover {
+  background: linear-gradient(135deg, #FFE088 0%, #F2CA50 100%);
+  box-shadow: 0 8px 30px rgba(242, 202, 80, 0.65);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.honey-btn:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 10px rgba(242, 202, 80, 0.35);
+}
+
+/* Interactive Input Focus Ring */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: rgba(242, 202, 80, 0.8) !important;
+  box-shadow: 0 0 0 3px rgba(242, 202, 80, 0.35) !important;
+}
+
+/* Celestial Gold Gradient Text Fills */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FFFFFF 0%, #E2E2E8 50%, #F2CA50 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1C1C24;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #F2CA50;
+}

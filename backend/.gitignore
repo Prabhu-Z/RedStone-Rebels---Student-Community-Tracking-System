@@ -1,0 +1,40 @@
+# Maven Target Build Directory
+target/
+*.class
+
+# Package Files
+*.jar
+*.war
+*.ear
+*.nar
+
+# Environment & Secrets
+.env
+*.env
+application-local.properties
+
+# Uploads & Temporary Storage
+uploads/
+certificates/
+temp/
+
+# H2 Database files
+*.db
+*.mv.db
+*.trace.db
+
+# IDE Configuration
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# System Log Files
+*.log
+logs/
+
+# Operating System Files
+.DS_Store
+Thumbs.db

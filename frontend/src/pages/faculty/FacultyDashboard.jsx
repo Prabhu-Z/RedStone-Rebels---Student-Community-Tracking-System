@@ -1,0 +1,455 @@
+import React, { useEffect, useState } from 'react';
+import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import StatCard from '../../components/common/StatCard';
+import ChartCard from '../../components/common/ChartCard';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import Badge from '../../components/common/Badge';
+import { Users, Building2, Calendar, Award, CheckCircle2, Search, ArrowRight, Send, CheckSquare, Sparkles, Clock, Check, AlertCircle, Eye, ChevronRight, BarChart3 } from 'lucide-react';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { Link } from 'react-router-dom';
+
+const FacultyDashboard = () => {
+  const { user } = useAuth();
+  const [data, setData] = useState(null);
+  const [groupedTasks, setGroupedTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Selected Task Modal for Viewing Accepted Communities
+  const [selectedGroupedTask, setSelectedGroupedTask] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  // Faculty Task Broadcast Modal State
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [taskSubmitting, setTaskSubmitting] = useState(false);
+  const [taskForm, setTaskForm] = useState({
+    title: '',
+    description: '',
+    targetYear: 'ALL',
+    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + ' 23:59',
+  });
+
+  useEffect(() => {
+    fetchDashboardAndTasks();
+  }, []);
+
+  const fetchDashboardAndTasks = async () => {
+    try {
+      const res = await api.get('/dashboards/faculty');
+      setData(res.data);
+
+      const tasksRes = await api.get('/tasks/faculty/grouped').catch(() => ({ data: [] }));
+      setGroupedTasks(tasksRes.data || []);
+    } catch (err) {
+      console.error('Error fetching faculty dashboard & tasks:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleProposeFacultyTask = async (e) => {
+    e.preventDefault();
+    setTaskSubmitting(true);
+    try {
+      await api.post(`/tasks/faculty/propose-all?facultyName=${encodeURIComponent(user?.name || 'Faculty Office')}`, taskForm);
+      alert('🏛️ Task proposed successfully! Click on the task row anytime to view which communities have accepted it.');
+      setShowTaskModal(false);
+      setTaskForm({
+        title: '',
+        description: '',
+        targetYear: 'ALL',
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] + ' 23:59',
+      });
+      fetchDashboardAndTasks();
+    } catch (err) {
+      alert('Failed to broadcast task proposal to coordinators.');
+    } finally {
+      setTaskSubmitting(false);
+    }
+  };
+
+  const handleOpenDetailModal = (task) => {
+    setSelectedGroupedTask(task);
+    setShowDetailModal(true);
+  };
+
+  if (loading) return <LoadingSpinner label="Loading college-wide extracurricular oversight..." />;
+  if (!data) return <div className="p-8 text-center text-stardustsilver-300">Failed to load analytics dashboard.</div>;
+
+  const COLORS = ['#d4af37', '#954535', '#38bdf8', '#34d399', '#a78bfa'];
+
+  const communityDistribution = data.communityDistribution || [
+    { name: 'Technical & Coding', value: 12 },
+    { name: 'Cultural & Arts', value: 8 },
+    { name: 'Social & NSS/NCC', value: 6 },
+    { name: 'Sports & Wellness', value: 5 }
+  ];
+
+  const topCommunities = data.topCommunities || [];
+
+  return (
+    <div className="space-y-8 p-4 lg:p-8">
+      {/* Faculty Header */}
+      <div className="glass-panel p-6 lg:p-8 rounded-3xl border border-warmgold-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <span className="text-xs font-serif font-bold text-warmgold-400 uppercase tracking-widest flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-warmgold-400" /> College-Level Monitoring & Oversight
+          </span>
+          <h1 className="font-serif text-3xl md:text-4xl font-extrabold text-white mt-1">
+            Faculty Executive Dashboard
+          </h1>
+          <p className="text-xs md:text-sm text-stardustsilver-300/70 mt-1">
+            Institutional tracking across 30+ communities, task assignments, volunteer hours, and student achievements.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => setShowTaskModal(true)}
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-warmgold-500 to-amber-500 text-black font-extrabold text-xs shadow-gold-glow hover:scale-105 transition"
+          >
+            <CheckSquare className="w-4 h-4 text-black" /> Assign Task to All Communities
+          </button>
+          <Link
+            to="/faculty/analytics"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-chestnut-700 to-warmgold-500 text-white font-bold text-xs hover:shadow-warmgold-500/20 transition shadow-lg"
+          >
+            <BarChart3 className="w-4 h-4" /> Participation Analytics Page
+          </Link>
+          <Link
+            to="/faculty/communities"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-warmgold-500/20 text-warmgold-300 border border-warmgold-500/40 font-bold text-xs hover:bg-warmgold-500/30 transition shadow-lg"
+          >
+            <Building2 className="w-4 h-4" /> Manage & Create Communities
+          </Link>
+        </div>
+      </div>
+
+      {/* Institutional Key Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard title="Total Communities" value={data.totalCommunities || 30} icon={Building2} accentColor="gold" />
+        <StatCard title="Total Enrolled Students" value={data.totalStudents || 1} icon={Users} accentColor="chestnut" />
+        <StatCard title="Proposed Campus Tasks" value={groupedTasks.length} icon={CheckSquare} accentColor="stardust" />
+        <StatCard title="Student Achievements" value={data.totalAchievements || 0} icon={Award} accentColor="emerald" />
+      </div>
+
+      {/* DEDICATED TABLE: FACULTY ASSIGNED COMMUNITY TASKS & ACCEPTANCE ROSTER */}
+      <div className="glass-panel p-6 lg:p-8 rounded-3xl border border-warmgold-500/30 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+          <div>
+            <h2 className="font-serif text-2xl font-bold text-white flex items-center gap-2">
+              <CheckSquare className="w-6 h-6 text-warmgold-400" /> Faculty Assigned Tasks & Community Acceptance
+            </h2>
+            <p className="text-xs text-stardustsilver-300/70 mt-1">
+              Click on any assigned task row to view which communities have accepted the task.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowTaskModal(true)}
+            className="px-4 py-2 rounded-xl bg-warmgold-500/20 text-warmgold-300 border border-warmgold-500/40 text-xs font-bold hover:bg-warmgold-500/30 transition"
+          >
+            + Propose New Task
+          </button>
+        </div>
+
+        {groupedTasks.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-white/15 text-warmgold-400 font-mono uppercase tracking-wider text-[11px]">
+                  <th className="py-3 px-4">Task Title & Details</th>
+                  <th className="py-3 px-4">Year & Deadline</th>
+                  <th className="py-3 px-4">Community Acceptance Status</th>
+                  <th className="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10 text-stardustsilver-300">
+                {groupedTasks.map((gt, idx) => {
+                  const hasAccepted = gt.acceptedCommunitiesCount > 0;
+
+                  return (
+                    <tr
+                      key={idx}
+                      onClick={() => handleOpenDetailModal(gt)}
+                      className="hover:bg-white/5 cursor-pointer transition group"
+                    >
+                      <td className="py-4 px-4">
+                        <div className="font-bold text-white text-sm group-hover:text-warmgold-300 transition">{gt.title}</div>
+                        <div className="text-[11px] text-stardustsilver-300/60 line-clamp-1 mt-0.5">{gt.description}</div>
+                      </td>
+                      <td className="py-4 px-4 font-mono text-[11px]">
+                        <div>Target: <strong className="text-white">{gt.targetYear}</strong></div>
+                        <div className="text-stardustsilver-300/60">{gt.deadline}</div>
+                      </td>
+                      <td className="py-4 px-4">
+                        {hasAccepted ? (
+                          <div className="flex items-center gap-2">
+                            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono text-[11px] font-bold flex items-center gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                              {gt.acceptedCommunitiesCount} / {gt.totalCommunitiesTargeted} Communities Accepted
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono text-[11px] font-bold flex items-center gap-1.5 inline-flex">
+                            <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                            No community has accepted this task yet
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 px-4 text-right">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenDetailModal(gt);
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-warmgold-500/20 text-warmgold-300 hover:bg-warmgold-500/30 border border-warmgold-500/40 font-bold text-xs inline-flex items-center gap-1 transition"
+                        >
+                          <Eye className="w-3.5 h-3.5" /> View Acceptance <ChevronRight className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="p-8 text-center text-xs text-stardustsilver-300/50 glass-card rounded-2xl border border-dashed border-white/10">
+            <CheckSquare className="w-8 h-8 text-warmgold-400/40 mx-auto mb-2" />
+            No tasks proposed yet. Click "Assign Task to All Communities" to start.
+          </div>
+        )}
+      </div>
+
+      {/* Visual Institutional Overview Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ChartCard title="Community Distribution by Category" subtitle="Overview of technical, cultural, & service chapters">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={communityDistribution} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                  {communityDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={{ backgroundColor: '#1e1c1b', borderColor: '#d4af37', borderRadius: '12px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </ChartCard>
+
+        <ChartCard title="Top Active Communities" subtitle="Highest student engagement and activity">
+          <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+            {topCommunities.length > 0 ? (
+              topCommunities.map((comm, idx) => (
+                <div key={comm.id || idx} className="p-3.5 rounded-xl bg-arsenic-900/60 border border-stardustsilver-300/10 flex items-center justify-between hover:border-warmgold-500/30 transition">
+                  <div>
+                    <div className="text-xs font-bold text-white flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-warmgold-500/20 text-warmgold-300 font-mono text-[10px] flex items-center justify-center font-bold">
+                        #{idx + 1}
+                      </span>
+                      {comm.name}
+                    </div>
+                    <div className="text-[10px] text-stardustsilver-300/60 ml-7">
+                      Category: {comm.category} • Coordinator: {comm.studentCoordinator || 'Assigned'}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      {comm.status || 'ACTIVE'}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-6 text-center text-xs text-stardustsilver-300/50">No communities loaded yet.</div>
+            )}
+          </div>
+        </ChartCard>
+      </div>
+
+      {/* MODAL: COMMUNITY ACCEPTANCE ROSTER FOR SELECTED TASK */}
+      {showDetailModal && selectedGroupedTask && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="glass-panel max-w-3xl w-full p-6 lg:p-8 rounded-3xl border border-warmgold-500/40 shadow-2xl relative max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4 shrink-0">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-white">{selectedGroupedTask.title}</h3>
+                <p className="text-[11px] text-warmgold-400 font-mono">
+                  Community Acceptance Breakdown ({selectedGroupedTask.acceptedCommunitiesCount} / {selectedGroupedTask.totalCommunitiesTargeted} Accepted)
+                </p>
+              </div>
+              <button onClick={() => setShowDetailModal(false)} className="text-white/60 hover:text-white text-lg font-bold px-2">✕</button>
+            </div>
+
+            <div className="overflow-y-auto pr-1 space-y-6 flex-1 text-xs">
+              {/* Task Overview Box */}
+              <div className="p-4 rounded-2xl bg-arsenic-900 border border-white/10 space-y-2">
+                <div className="text-stardustsilver-300 leading-relaxed text-xs">{selectedGroupedTask.description}</div>
+                <div className="flex flex-wrap gap-4 font-mono text-[11px] text-warmgold-300 pt-1 border-t border-white/10">
+                  <span>Target Year: {selectedGroupedTask.targetYear}</span>
+                  <span>Deadline: {selectedGroupedTask.deadline}</span>
+                  <span>Assigned By: {selectedGroupedTask.assignedByFacultyName}</span>
+                </div>
+              </div>
+
+              {/* SECTION 1: ACCEPTED COMMUNITIES */}
+              <div className="space-y-3">
+                <h4 className="font-serif text-sm font-bold text-emerald-400 flex items-center gap-2 uppercase tracking-wider">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Communities That Accepted The Task ({selectedGroupedTask.communityAssignments.filter(ca => ca.status !== 'PENDING' && ca.status !== 'DECLINED').length})
+                </h4>
+
+                {selectedGroupedTask.communityAssignments.filter(ca => ca.status !== 'PENDING' && ca.status !== 'DECLINED').length > 0 ? (
+                  <div className="space-y-2.5">
+                    {selectedGroupedTask.communityAssignments.filter(ca => ca.status !== 'PENDING' && ca.status !== 'DECLINED').map((ca) => (
+                      <div key={ca.id} className="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-white text-sm">{ca.communityName}</div>
+                          <div className="text-[11px] text-stardustsilver-300/70 font-mono mt-0.5">
+                            Status: <strong className="text-emerald-300">{ca.status === 'COMPLETED' ? 'COMPLETED (Submitted to Admin)' : 'ASSIGNED & ACTIVE'}</strong>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="text-[11px] font-mono text-emerald-400 font-bold">
+                            Verified Students: {ca.verifiedStudentCount} / {ca.assignedStudentCount}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-500/30 text-amber-300 text-center font-mono">
+                    ⚠️ No community has accepted this task yet.
+                  </div>
+                )}
+              </div>
+
+              {/* SECTION 2: PENDING COMMUNITIES */}
+              <div className="space-y-3 pt-2">
+                <h4 className="font-serif text-sm font-bold text-stardustsilver-300/80 flex items-center gap-2 uppercase tracking-wider">
+                  <Clock className="w-4 h-4 text-amber-400" /> Communities Pending Coordinator Review ({selectedGroupedTask.communityAssignments.filter(ca => ca.status === 'PENDING').length})
+                </h4>
+
+                {selectedGroupedTask.communityAssignments.filter(ca => ca.status === 'PENDING').length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                    {selectedGroupedTask.communityAssignments.filter(ca => ca.status === 'PENDING').map((ca) => (
+                      <div key={ca.id} className="p-2.5 rounded-xl bg-arsenic-900/60 border border-white/10 flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-stardustsilver-300">{ca.communityName}</span>
+                        <span className="text-[10px] font-mono text-amber-400 font-bold">PENDING</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-white/5 text-stardustsilver-300/50 text-center text-[11px]">
+                    All communities have reviewed this task.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FACULTY PROPOSE TASK TO ALL COMMUNITIES MODAL */}
+      {showTaskModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="glass-panel max-w-lg w-full p-6 lg:p-8 rounded-3xl border border-warmgold-500/40 shadow-2xl relative">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+              <div className="flex items-center gap-2">
+                <CheckSquare className="w-6 h-6 text-warmgold-400" />
+                <div>
+                  <h3 className="font-serif text-xl font-bold text-white">Assign Campus Community Task</h3>
+                  <p className="text-[10px] text-warmgold-400 uppercase tracking-widest font-mono">Propose to All 30+ Communities</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowTaskModal(false)}
+                className="text-white/60 hover:text-white text-lg font-bold px-2"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleProposeFacultyTask} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Task Title</label>
+                <input
+                  type="text"
+                  required
+                  value={taskForm.title}
+                  onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+                  placeholder="e.g. Annual Campus Environment Audit & Report"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white placeholder-white/20"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Target Student Year</label>
+                <select
+                  value={taskForm.targetYear}
+                  onChange={(e) => setTaskForm({ ...taskForm, targetYear: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white"
+                >
+                  <option value="ALL">ALL YEARS (1st, 2nd, 3rd, 4th Year)</option>
+                  <option value="1st Year">1st Year Only</option>
+                  <option value="2nd Year">2nd Year Only</option>
+                  <option value="3rd Year">3rd Year Only</option>
+                  <option value="4th Year">4th Year Only</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Deadline Date & Time</label>
+                <input
+                  type="text"
+                  required
+                  value={taskForm.deadline}
+                  onChange={(e) => setTaskForm({ ...taskForm, deadline: e.target.value })}
+                  placeholder="YYYY-MM-DD 23:59"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Task Description & Deliverables</label>
+                <textarea
+                  rows={4}
+                  required
+                  value={taskForm.description}
+                  onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+                  placeholder="Specify task instructions, proof upload requirements, and guidelines for students..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white placeholder-white/20"
+                />
+              </div>
+
+              <div className="p-3 rounded-xl bg-warmgold-500/10 border border-warmgold-500/30 text-[11px] text-warmgold-300">
+                ℹ️ <strong>Workflow:</strong> Task starts as <strong>PENDING</strong> ➔ Transitions to <strong>ASSIGNED to Community</strong> when accepted by Coordinator ➔ Transitions to <strong>COMPLETED</strong> when Coordinator submits verified student package to Admin.
+              </div>
+
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setShowTaskModal(false)}
+                  className="px-4 py-2 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={taskSubmitting}
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-warmgold-500 to-amber-500 text-black font-extrabold shadow-gold-glow flex items-center gap-2 disabled:opacity-50"
+                >
+                  {taskSubmitting ? 'Broadcasting...' : 'Broadcast Task Proposal'} <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default FacultyDashboard;
