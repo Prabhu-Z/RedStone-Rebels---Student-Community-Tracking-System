@@ -16,40 +16,26 @@
 
 ---
 
-## 🛠️ Repository Fix Applied for Evaluators (Universal `mvnw.cmd`)
+## ⚡ Zero-Install Setup for Teachers & Evaluators
 
-> ✅ **FIXED:** The repository `mvnw.cmd` script has been updated to remove hardcoded user paths (`C:\Users\prabh\...`). It now dynamically resolves `%USERPROFILE%` and system `%PATH%` so `mvnw.cmd` and `start_app.bat` work out-of-the-box on **ANY evaluator's computer**.
+> 🎉 **NO MAVEN INSTALLATION REQUIRED!**  
+> We have updated the repository's **`mvnw.cmd`** with an automated PowerShell downloader. The teacher or evaluator does **NOT** need to install Apache Maven or configure system PATH variables. Simply double-click **`start_app.bat`** and everything runs automatically!
 
 ---
 
-## 📥 Direct 1-Click Download Links for Evaluators & Staff
+## 📥 Direct 1-Click Download Links (If Java JDK 21 or Node.js is needed)
 
-If you need to install Java, Node.js, or Apache Maven on your machine, click the **Direct Download Links** below:
+If the evaluator's computer does not have Java JDK 21 or Node.js, click the direct 1-click Windows installer links below:
 
-### 1️⃣ **Java JDK 21 (Java Development Kit)**
+### 1️⃣ **Java JDK 21 (Required)**
 * 🔗 **Direct Windows 64-Bit Installer (.exe):**  
   [👉 Click Here to Download Java JDK 21 Direct Installer (.exe)](https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.exe)
-* 🌐 **Official Java Page:** [Oracle JDK 21 Downloads](https://www.oracle.com/java/technologies/downloads/#java21)
 
 ---
 
-### 2️⃣ **Node.js LTS (v20.x)**
+### 2️⃣ **Node.js LTS (Required for Frontend)**
 * 🔗 **Direct Windows 64-Bit Installer (.msi):**  
   [👉 Click Here to Download Node.js LTS Direct Installer (.msi)](https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi)
-* 🌐 **Official Node.js Page:** [Node.js Official Downloads](https://nodejs.org/en/download/)
-
----
-
-### 3️⃣ **Apache Maven (ZIP Download & PATH Setup)**
-* 🔗 **Direct Apache Maven Binary Zip Download (.zip):**  
-  [👉 Click Here to Download Apache Maven 3.9.6 Zip Package (.zip)](https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip)
-* 🌐 **Official Apache Maven Download Page:** [Apache Maven Download Page](https://maven.apache.org/download.cgi)
-
-#### **Quick 3-Step Apache Maven Installation Guide for Staff:**
-1. Download the Apache Maven Zip file from the link above.
-2. Extract the zip file (e.g. to `C:\Program Files\Apache\Maven`).
-3. Add `C:\Program Files\Apache\Maven\bin` to your Windows **System PATH** environment variable.
-4. Verify by opening a new Command Prompt and running: `mvn -version`
 
 ---
 

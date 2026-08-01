@@ -1,6 +1,6 @@
 @REM ----------------------------------------------------------------------------
-@REM Universal Portable Maven Wrapper Batch Script for SCTS Backend
-@REM Designed for evaluators & developers: works on any computer & user profile.
+@REM Zero-Install Universal Maven Wrapper Batch Script for SCTS Backend
+@REM Auto-downloads Maven Wrapper if Maven is not installed on the teacher's PC.
 @REM ----------------------------------------------------------------------------
 
 @SETLOCAL enableextensions enabledelayedexpansion
@@ -26,20 +26,25 @@
   )
 )
 
-@REM 3. Check local project maven wrapper jar if present
+@REM 3. Ensure .mvn/wrapper directory exists
+@IF NOT EXIST "%~dp0.mvn\wrapper" (
+  @mkdir "%~dp0.mvn\wrapper"
+)
+
+@REM 4. Auto-download maven-wrapper.jar if not present locally
+@IF NOT EXIST "%~dp0.mvn\wrapper\maven-wrapper.jar" (
+  @echo.
+  @echo =========================================================================
+  @echo  [SCTS AUTO-SETUP] Downloading Maven Wrapper for zero-install execution...
+  @echo =========================================================================
+  @powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object System.Net.WebClient).DownloadFile('https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.2.0/maven-wrapper-3.2.0.jar', '%~dp0.mvn\wrapper\maven-wrapper.jar')"
+)
+
+@REM 5. Execute Maven via maven-wrapper.jar
 @IF EXIST "%~dp0.mvn\wrapper\maven-wrapper.jar" (
   @java -jar "%~dp0.mvn\wrapper\maven-wrapper.jar" %*
   @EXIT /B %ERRORLEVEL%
 )
 
-@REM 4. Fallback execution attempt
+@REM 6. Final Fallback
 @mvn %*
-@IF %ERRORLEVEL% NEQ 0 (
-  @echo.
-  @echo =========================================================================
-  @echo  [SCTS SETUP NOTICE] Maven executable 'mvn' was not found on system PATH.
-  @echo  Please install Apache Maven or add it to System PATH:
-  @echo  Download Link: https://maven.apache.org/download.cgi
-  @echo =========================================================================
-  @echo.
-)
