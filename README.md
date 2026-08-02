@@ -16,24 +16,20 @@
 
 ---
 
-## 📦 Instructions if Downloaded as a ZIP File from GitHub
+## 🚀 Production Deployment Ready!
 
-If the teacher or evaluator downloads this repository as a **ZIP file** (`Download ZIP` button on GitHub):
+The project has been compiled, packaged, and prepared for **1-click cloud deployment** or **Docker containerization**:
 
-1. **Extract the ZIP file**: Right-click the downloaded `.zip` file and select **Extract All...**.
-2. **Open the extracted folder**: Double-click to open the extracted `scts/` (or `RedStone-Rebels-main/`) folder.
-3. **Double-click `start_app.bat`**:  
-   Double-click **`start_app.bat`**! It will automatically:
-   - Check and auto-install frontend dependencies (`npm install`) if running for the first time.
-   - Auto-download the Maven Wrapper (`mvnw.cmd`) if Maven is not installed on the teacher's PC.
-   - Launch Spring Boot Backend (`http://localhost:8080`) and React Frontend (`http://localhost:5173`).
-   - Automatically open your default web browser to **`http://localhost:5173`**!
+- 📦 **Backend Executable JAR**: [`backend/target/scts-backend-1.0.0.jar`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/backend/target/scts-backend-1.0.0.jar) *(Built & Verified)*
+- 🌐 **Frontend Static Bundle**: [`frontend/dist/`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/frontend/dist) *(Built & Verified)*
+- 🐋 **Production Dockerfile**: [`Dockerfile`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/Dockerfile) *(Multi-stage build)*
+- ☁️ **Cloud Config**: [`render.yaml`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/render.yaml) & [`DEPLOYMENT.md`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/DEPLOYMENT.md) *(Render & Vercel Free Hosting Guide)*
 
 ---
 
 ## ⚡ Zero-Install Setup for Teachers & Evaluators
 
-> 🎉 **NO MANUAL MAVEN INSTALLATION REQUIRED!**  
+> 🎉 **NO MAVEN INSTALLATION REQUIRED!**  
 > We have updated the repository's **`mvnw.cmd`** with an automated PowerShell downloader. The teacher or evaluator does **NOT** need to install Apache Maven or configure system PATH variables. Simply double-click **`start_app.bat`** and everything runs automatically!
 
 ---
@@ -51,6 +47,23 @@ If the evaluator's computer does not have Java JDK 21 or Node.js, click the dire
 ### 2️⃣ **Node.js LTS (Required for Frontend)**
 * 🔗 **Direct Windows 64-Bit Installer (.msi):**  
   [👉 Click Here to Download Node.js LTS Direct Installer (.msi)](https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi)
+
+---
+
+## ⚡ How to Open and Run the Application (1-Click)
+
+### 🚀 **Step 1: Open the Project Folder**
+Open File Explorer to the project main directory:
+```
+scts/
+ ├── start_app.bat   <--- 👈 DOUBLE CLICK THIS FILE!
+```
+
+### 🚀 **Step 2: Double Click `start_app.bat`**
+Double-click **`start_app.bat`**. It will automatically:
+1. Start the Spring Boot Backend Server on `http://localhost:8080`.
+2. Start the React Vite Frontend UI on `http://localhost:5173`.
+3. Automatically open your web browser to **`http://localhost:5173`**!
 
 ---
 
