@@ -1,20 +1,44 @@
 # 🚀 How to Run & Open the SCTS Application Easily
 
-> **Evaluator & Zero-Setup Launch Guide for SCTS (Smart Campus Extracurricular System)**
+> **Evaluator Startup Guide & Login Credentials for SCTS (Smart Campus Extracurricular System)**
 
 ---
 
-## 🛠️ Zero-Setup Improvements Applied
+## 🔑 Login Credentials (Password: `password123`)
 
-1. **Backend Maven Wrapper (`mvnw.cmd`)**:
-   - Fixed `no main manifest attribute` error by invoking `org.apache.maven.wrapper.MavenWrapperMain` via classpath `-classpath .mvn/wrapper/maven-wrapper.jar`.
-   - Included physical `maven-wrapper.jar` inside the repository.
-   - **No Apache Maven download or PATH setup required!**
+> 💡 **Important:** The password for all accounts is `password123`.  
+> You can also click the 1-click **Student Demo**, **Coordinator Demo**, or **Faculty Demo** buttons on the login screen to autofill automatically!
 
-2. **Frontend `npm.cmd` & PowerShell ExecutionPolicy Bypass**:
-   - Updated `start_app.bat` to call `npm.cmd` explicitly instead of `npm`.
-   - This completely bypasses Windows PowerShell `Restricted` ExecutionPolicy (`npm.ps1` script errors).
-   - Auto-checks for `node_modules\vite` and runs `npm.cmd install` automatically if missing.
+| Role | Username / Email | Password | Access Scope |
+| :--- | :--- | :--- | :--- |
+| 🎓 **Student** | `student@scts.edu` | `password123` | Joined Communities, Tasks, Events (+1 Pt), Activity Claims, Leaderboard |
+| 🛡️ **Coordinator** | `coordinator@scts.edu` | `password123` | Coding Club Coordinator Dashboard, Deliverable Verification (+3/+5 Pts), Activity Requests |
+| 🏆 **Faculty Admin** | `faculty@scts.edu` | `password123` | College Dashboard, Task Governance, 30+ Communities Participation Analytics |
+
+---
+
+## ⚡ Zero-Install Setup for Teachers & Evaluators
+
+🎉 **NO MAVEN INSTALLATION REQUIRED!**  
+The project's **`mvnw.cmd`** script includes an automated 1-click PowerShell downloader. The evaluating teacher or staff member does **NOT** need to install Apache Maven or set any PATH environment variables. 
+
+Simply double-click **`start_app.bat`** and the system handles Maven automatically!
+
+---
+
+## 📥 Direct 1-Click Download Links (If Java JDK 21 or Node.js is needed)
+
+If your machine needs Java JDK 21 or Node.js, click the **Direct Download Links** below:
+
+### 1️⃣ **Java JDK 21 (Java Development Kit)**
+* 🔗 **Direct Windows 64-Bit Installer (.exe):**  
+  [👉 Click Here to Download Java JDK 21 Direct Installer (.exe)](https://download.oracle.com/java/21/latest/jdk-21_windows-x64_bin.exe)
+
+---
+
+### 2️⃣ **Node.js LTS (v20.x)**
+* 🔗 **Direct Windows 64-Bit Installer (.msi):**  
+  [👉 Click Here to Download Node.js LTS Direct Installer (.msi)](https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi)
 
 ---
 
@@ -28,36 +52,6 @@ scts/
 ```
 
 ### What happens automatically:
-1. Automatically checks for frontend dependencies and runs `npm.cmd install` if needed.
-2. Automatically launches the **Spring Boot Backend Engine** on `http://localhost:8080`.
-3. Automatically launches the **Vite React Frontend UI** on `http://localhost:5173`.
-4. Automatically opens your web browser to **`http://localhost:5173`** in 5 seconds!
-
----
-
-## 💻 Method 2: Manual Terminal Launch
-
-If launching manually via Command Prompt (`cmd`):
-
-### Step 1: Start Backend
-```cmd
-cd backend
-mvnw.cmd spring-boot:run
-```
-
-### Step 2: Start Frontend
-```cmd
-cd frontend
-npm.cmd install
-npm.cmd run dev
-```
-
----
-
-## 🔑 Evaluator Test Login Credentials
-
-| Role | Username / Email | Password | Access Scope |
-| :--- | :--- | :--- | :--- |
-| 🎓 **Student** | `student@scts.edu` | `password` | Joined Communities, Tasks, Events (+1 Pt), Activity Claims, Leaderboard |
-| 🛡️ **Coordinator** | `coordinator@scts.edu` | `password` | Coding Club Coordinator Dashboard, Deliverable Verification (+3/+5 Pts), Activity Requests |
-| 🏆 **Faculty Admin** | `faculty@scts.edu` | `password` | College Dashboard, Task Governance, 30+ Communities Participation Analytics |
+1. It automatically launches the **Spring Boot Backend Engine** on `http://localhost:8080`.
+2. It automatically launches the **Vite React Frontend UI** on `http://localhost:5173`.
+3. It automatically opens your web browser to **`http://localhost:5173`** in 5 seconds!

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://redstone-rebels-student-community-z3xd.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -27,7 +27,6 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Token expired or invalid
       localStorage.removeItem('scts_user');
       if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
         window.location.href = '/login';

@@ -16,14 +16,22 @@
 
 ---
 
-## 🚀 Production Deployment Ready!
+## 🔑 Demo Login Accounts & Password
 
-The project has been compiled, packaged, and prepared for **1-click cloud deployment** or **Docker containerization**:
+> 💡 **Password for all seed accounts is:** `password123`  
+> *(On the Login Screen, simply click the **Student Demo**, **Coordinator Demo**, or **Faculty Demo** buttons at the bottom to 1-click autofill!)*
 
-- 📦 **Backend Executable JAR**: [`backend/target/scts-backend-1.0.0.jar`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/backend/target/scts-backend-1.0.0.jar) *(Built & Verified)*
-- 🌐 **Frontend Static Bundle**: [`frontend/dist/`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/frontend/dist) *(Built & Verified)*
-- 🐋 **Production Dockerfile**: [`Dockerfile`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/Dockerfile) *(Multi-stage build)*
-- ☁️ **Cloud Config**: [`render.yaml`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/render.yaml) & [`DEPLOYMENT.md`](file:///C:/Users/prabh/.gemini/antigravity/scratch/scts/DEPLOYMENT.md) *(Render & Vercel Free Hosting Guide)*
+| Role | Username / Email | Password | Access Scope |
+| :--- | :--- | :--- | :--- |
+| 🎓 **Student** | `student@scts.edu` | `password123` | Joined Communities, Tasks, Events (+1 Pt), Activity Claims, Leaderboard |
+| 🛡️ **Coordinator** | `coordinator@scts.edu` | `password123` | Coding Club Coordinator Dashboard, Deliverable Verification (+3/+5 Pts), Activity Requests |
+| 🏆 **Faculty Admin** | `faculty@scts.edu` | `password123` | College Dashboard, Task Governance, 30+ Communities Participation Analytics |
+
+---
+
+## 🌐 Live Production URL (Deploy Status)
+
+- ⚡ **Live Render Backend API**: [`https://redstone-rebels-student-community-z3xd.onrender.com/api`](https://redstone-rebels-student-community-z3xd.onrender.com/api) *(LIVE 🚀)*
 
 ---
 
@@ -64,18 +72,6 @@ Double-click **`start_app.bat`**. It will automatically:
 1. Start the Spring Boot Backend Server on `http://localhost:8080`.
 2. Start the React Vite Frontend UI on `http://localhost:5173`.
 3. Automatically open your web browser to **`http://localhost:5173`**!
-
----
-
-## 🔑 Evaluator Test Login Credentials
-
-Once the browser opens at `http://localhost:5173`, use any of these pre-configured accounts:
-
-| Role | Username / Email | Password | Access Scope |
-| :--- | :--- | :--- | :--- |
-| 🎓 **Student** | `student@scts.edu` | `password` | Joined Communities, Tasks, Events (+1 Pt), Activity Claims, Leaderboard |
-| 🛡️ **Coordinator** | `coordinator@scts.edu` | `password` | Coding Club Coordinator Dashboard, Deliverable Verification (+3/+5 Pts), Activity Requests |
-| 🏆 **Faculty Admin** | `faculty@scts.edu` | `password` | College Dashboard, Task Governance, 30+ Communities Participation Analytics |
 
 ---
 
