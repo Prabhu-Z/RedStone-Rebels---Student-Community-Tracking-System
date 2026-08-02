@@ -4,6 +4,13 @@
 
 ---
 
+## 🌐 Live Web Application & API Deployment
+
+- 🚀 **Live Production Application URL**: [https://redstone-rebels-student-community-nqe9.onrender.com](https://redstone-rebels-student-community-nqe9.onrender.com) *(LIVE ONLINE)*
+- ⚡ **Live Render Backend API**: [https://redstone-rebels-student-community-nqe9.onrender.com/api](https://redstone-rebels-student-community-nqe9.onrender.com/api) *(LIVE 🚀)*
+
+---
+
 ## 🏆 Project Team & Credits
 
 ### 🚩 **Team Name:** RedStone Rebels
@@ -26,12 +33,6 @@
 | 🎓 **Student** | `student@scts.edu` | `password123` | Joined Communities, Tasks, Events (+1 Pt), Activity Claims, Leaderboard |
 | 🛡️ **Coordinator** | `coordinator@scts.edu` | `password123` | Coding Club Coordinator Dashboard, Deliverable Verification (+3/+5 Pts), Activity Requests |
 | 🏆 **Faculty Admin** | `faculty@scts.edu` | `password123` | College Dashboard, Task Governance, 30+ Communities Participation Analytics |
-
----
-
-## 🌐 Live Production URL (Deploy Status)
-
-- ⚡ **Live Render Backend API**: [`https://redstone-rebels-student-community-z3xd.onrender.com/api`](https://redstone-rebels-student-community-z3xd.onrender.com/api) *(LIVE 🚀)*
 
 ---
 

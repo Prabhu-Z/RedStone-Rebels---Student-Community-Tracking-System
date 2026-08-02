@@ -31,8 +31,12 @@ const LoginPage = () => {
   const { login, checkEmailExists, loginWithFirebaseGoogle, loading } = useAuth();
   const navigate = useNavigate();
 
+  const isPlaceholderClientId = !GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('placeholder');
+
   // Initialize Official Google Identity Services (GIS) SDK
   useEffect(() => {
+    if (isPlaceholderClientId) return;
+
     const handleGoogleCallback = async (response) => {
       setError('');
       try {
@@ -45,14 +49,12 @@ const LoginPage = () => {
         const realEmail = decoded.email.toLowerCase().trim();
         const realName = decoded.name || realEmail.split('@')[0];
 
-        // Check if email exists in database before signing in
         const exists = await checkEmailExists(realEmail);
         if (!exists) {
           setError(`Account with email "${realEmail}" is not registered yet. Please click "Register Student Account" below to sign up!`);
           return;
         }
 
-        // Email exists, proceed to log in
         const user = await loginWithFirebaseGoogle(realEmail, realName);
         if (user?.role === 'ROLE_COMMUNITY_COORDINATOR') navigate('/coordinator/dashboard');
         else if (user?.role === 'ROLE_FACULTY') navigate('/faculty/dashboard');
@@ -97,7 +99,7 @@ const LoginPage = () => {
     }, 200);
 
     return () => clearInterval(interval);
-  }, [checkEmailExists, loginWithFirebaseGoogle, navigate]);
+  }, [checkEmailExists, loginWithFirebaseGoogle, navigate, isPlaceholderClientId]);
 
   // Real-time email existence check for password input
   useEffect(() => {
@@ -132,6 +134,10 @@ const LoginPage = () => {
     setPassword('password123');
   };
 
+  const handlePlaceholderGoogleClick = () => {
+    setError('Google Cloud Client ID is not configured yet. Please sign in with email & password or click a 1-Click Demo Account below!');
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
       <div className="glass-panel max-w-md w-full p-8 rounded-3xl border border-[#F2CA50]/30 shadow-2xl relative z-10">
@@ -154,10 +160,26 @@ const LoginPage = () => {
           </div>
         )}
 
-        {/* Official Google Sign-In Button Container */}
+        {/* Google Sign-In Container */}
         <div className="mb-6 space-y-3">
           <div className="flex justify-center min-h-[44px]">
-            <div ref={googleBtnRef}></div>
+            {isPlaceholderClientId ? (
+              <button
+                type="button"
+                onClick={handlePlaceholderGoogleClick}
+                className="w-full py-2.5 px-4 rounded-full bg-[#1e1e24] border border-white/20 text-white text-xs font-semibold flex items-center justify-center gap-3 hover:bg-[#282830] transition shadow-md"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                Sign in with Google
+              </button>
+            ) : (
+              <div ref={googleBtnRef}></div>
+            )}
           </div>
 
           <div className="relative my-6 text-center">
