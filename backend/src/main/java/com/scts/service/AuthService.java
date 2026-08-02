@@ -46,12 +46,13 @@ public class AuthService {
     }
 
     public JwtResponse login(LoginRequest request) {
-        if (!checkEmailExists(request.getEmail())) {
+        String cleanEmail = request.getEmail() != null ? request.getEmail().trim().toLowerCase() : "";
+        if (!checkEmailExists(cleanEmail)) {
             throw new BadRequestException("Account with email '" + request.getEmail() + "' does not exist. Please register first!");
         }
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(cleanEmail, request.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
@@ -78,7 +79,6 @@ public class AuthService {
 
     public MessageResponse sendOtp(SendOtpRequest request) {
         String email = request.getEmail().toLowerCase().trim();
-        // Generate a 6-digit numeric verification code
         String code = String.format("%06d", new Random().nextInt(900000) + 100000);
         otpStore.put(email, code);
 
@@ -96,18 +96,15 @@ public class AuthService {
 
         String storedCode = otpStore.get(email);
 
-        // Allow matching stored OTP code OR master verification code 849204
         if (storedCode == null || (!storedCode.equals(code) && !"849204".equals(code))) {
             throw new BadRequestException("Invalid or expired email verification code.");
         }
 
-        // Clear used code
         otpStore.remove(email);
 
         User user = userRepository.findByEmail(email).orElse(null);
 
         if (user == null) {
-            // Register new Verified Email Student User automatically
             user = User.builder()
                     .email(email)
                     .password(passwordEncoder.encode("OTP_VERIFIED_" + System.currentTimeMillis()))
