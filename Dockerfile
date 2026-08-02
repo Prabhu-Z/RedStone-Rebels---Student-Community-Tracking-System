@@ -2,12 +2,11 @@
 # SCTS MULTI-STAGE DOCKERFILE FOR RENDER PRODUCTION DEPLOYMENT
 # ==============================================================================
 
-# STAGE 1: Build Spring Boot Backend JAR
-FROM eclipse-temurin:21-jdk-alpine AS backend-builder
+# STAGE 1: Build Spring Boot Backend JAR using Pre-Installed Maven 3.9 & JDK 21
+FROM maven:3.9-eclipse-temurin-21-alpine AS backend-builder
 WORKDIR /app/backend
 COPY backend/ .
-RUN tr -d '\r' < mvnw > mvnw_unix && mv mvnw_unix mvnw && chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # STAGE 2: Build React Vite Frontend Assets
 FROM node:20-alpine AS frontend-builder
