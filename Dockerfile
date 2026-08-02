@@ -6,7 +6,7 @@
 FROM eclipse-temurin:21-jdk-alpine AS backend-builder
 WORKDIR /app/backend
 COPY backend/ .
-RUN chmod +x mvnw
+RUN chmod +x mvnw || true
 RUN ./mvnw clean package -DskipTests
 
 # STAGE 2: Build React Vite Frontend Assets

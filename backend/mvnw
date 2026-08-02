@@ -1,0 +1,15 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Universal Maven Wrapper Shell Script for Linux / Docker Containers
+# ----------------------------------------------------------------------------
+
+MAVEN_PROJECTBASEDIR="$PWD"
+
+if [ -f "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" ]; then
+    exec java "-Dmaven.multiModuleProjectDirectory=$MAVEN_PROJECTBASEDIR" -classpath "$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar" org.apache.maven.wrapper.MavenWrapperMain "$@"
+elif command -v mvn >/dev/null 2>&1; then
+    exec mvn "$@"
+else
+    echo "Error: Maven or Maven Wrapper not found."
+    exit 1
+fi
