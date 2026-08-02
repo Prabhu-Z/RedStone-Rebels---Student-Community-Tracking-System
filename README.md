@@ -10,6 +10,17 @@
 - ⚡ **Live Render Backend API**: [https://redstone-rebels-student-community-nqe9.onrender.com/api](https://redstone-rebels-student-community-nqe9.onrender.com/api) *(LIVE 🚀)*
 
 ---
+## ⚠️ Important Note for Teachers & Evaluators
+
+> **This application is hosted on Render's free hosting tier.**
+>
+> If the website has been inactive for a while, Render automatically puts the server into a sleep state to conserve resources.
+>
+> - ⏳ The **first visit may take approximately 2–3 minutes** while the server wakes up.
+> - ✅ **Please wait and refresh the page if necessary.**
+> - 🚀 Once the server is awake, the application will function normally and subsequent page loads will be much faster.
+>
+> **This is a hosting platform limitation and not an issue with the application itself.**
 
 ## 🏆 Project Team & Credits
 
