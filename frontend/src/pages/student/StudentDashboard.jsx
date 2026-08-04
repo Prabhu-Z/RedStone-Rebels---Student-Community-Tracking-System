@@ -7,14 +7,24 @@ import Timeline from '../../components/common/Timeline';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Badge from '../../components/common/Badge';
 import PrintReportModal from '../../components/reports/PrintReportModal';
-import { Users, Calendar, CheckCircle2, Clock, Award, Printer } from 'lucide-react';
+import PortfolioExportModal from '../../components/common/PortfolioExportModal';
+import { Users, Calendar, CheckCircle2, Award, Printer, ShieldCheck, FileDown } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
+
+const getTierDetails = (points = 0) => {
+  if (points >= 100) return { title: '👑 Extracurricular Legend', color: 'border-amber-400 text-amber-400 bg-amber-400/10' };
+  if (points >= 61) return { title: '💎 Platinum Leader', color: 'border-cyan-400 text-cyan-400 bg-cyan-400/10' };
+  if (points >= 36) return { title: '🥇 Gold Achiever', color: 'border-[#F2CA50] text-[#F2CA50] bg-[#F2CA50]/10' };
+  if (points >= 16) return { title: '🥈 Silver Trailblazer', color: 'border-slate-300 text-slate-300 bg-slate-400/10' };
+  return { title: '🥉 Bronze Contributor', color: 'border-amber-700 text-amber-600 bg-amber-800/10' };
+};
 
 const StudentDashboard = () => {
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reportModal, setReportModal] = useState(false);
+  const [portfolioModal, setPortfolioModal] = useState(false);
   const [reportData, setReportData] = useState(null);
 
   useEffect(() => {
@@ -43,31 +53,47 @@ const StudentDashboard = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner label="Compiling student activity profile..." />;
+  if (loading) return <LoadingSpinner label="Compiling Apple frosted glass profile..." />;
   if (!data) return <div className="p-8 text-center text-[#D0C5AF]">Failed to load dashboard data.</div>;
+
+  const totalPoints = (data.eventsAttendedCount * 1) + (data.achievementsCount * 5);
+  const tier = getTierDetails(totalPoints);
 
   return (
     <div className="space-y-8">
-      {/* Header Banner */}
-      <div className="glass-panel p-6 lg:p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden">
-        <div>
-          <span className="text-xs font-bold text-[#F2CA50] uppercase tracking-widest">
-            Student Extracurricular Hub
-          </span>
+      {/* Header Banner with Apple Glassmorphism */}
+      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-xs font-bold text-[#F2CA50] uppercase tracking-widest flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4" /> Student Extracurricular Hub
+            </span>
+            <span className={`px-3 py-0.5 rounded-full text-[11px] font-extrabold border ${tier.color}`}>
+              {tier.title}
+            </span>
+          </div>
           <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-1">
             Welcome back, {data.student.name}!
           </h1>
-          <p className="text-xs md:text-sm text-[#D0C5AF] mt-1 font-medium">
+          <p className="text-xs md:text-sm text-[#D0C5AF] font-medium">
             {data.student.department} • {data.student.degree} (Year {data.student.year}, Sem {data.student.semester}) • Register #{data.student.studentCode}
           </p>
         </div>
 
-        <button
-          onClick={handleOpenReport}
-          className="flex items-center gap-2 px-5 py-3 rounded-xl honey-btn text-xs font-extrabold shadow-gold-glow"
-        >
-          <Printer className="w-4 h-4" /> Export Complete Portfolio
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => setPortfolioModal(true)}
+            className="flex items-center gap-2 px-5 py-3 rounded-xl honey-btn text-xs font-extrabold shadow-gold-glow"
+          >
+            <FileDown className="w-4 h-4" /> Export Verified Portfolio PDF
+          </button>
+          <button
+            onClick={handleOpenReport}
+            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition border border-white/15"
+          >
+            <Printer className="w-4 h-4" /> Detailed Report
+          </button>
+        </div>
       </div>
 
       {/* Metrics Row */}
@@ -137,8 +163,8 @@ const StudentDashboard = () => {
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Upcoming Events Box */}
-        <div className="glass-card p-6 rounded-2xl border border-white/10 flex flex-col justify-between">
+        {/* Upcoming Events Box with Apple Glass Styling */}
+        <div className="glass-card-apple p-6 rounded-2xl border border-white/15 flex flex-col justify-between shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-extrabold text-[#E2E2E8]">Upcoming Events</h3>
             <span className="text-xs font-mono text-[#D0C5AF]">{data.upcomingEventsCount} Scheduled</span>
@@ -166,13 +192,20 @@ const StudentDashboard = () => {
       </div>
 
       {/* Activity Timeline Section */}
-      <div className="glass-panel p-6 lg:p-8 rounded-3xl border border-white/10">
+      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 shadow-2xl">
         <h3 className="text-2xl font-extrabold text-white mb-6">Recent Activity Timeline</h3>
         <Timeline activities={data.recentActivities} />
       </div>
 
-      {/* Print Report Modal */}
+      {/* Print & Portfolio Modals */}
       <PrintReportModal isOpen={reportModal} onClose={() => setReportModal(false)} reportData={reportData} />
+      <PortfolioExportModal
+        isOpen={portfolioModal}
+        onClose={() => setPortfolioModal(false)}
+        studentData={data.student}
+        points={totalPoints}
+        verifiedTasks={[]}
+      />
     </div>
   );
 };

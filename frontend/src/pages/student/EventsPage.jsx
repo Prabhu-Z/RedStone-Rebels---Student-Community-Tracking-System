@@ -4,7 +4,8 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Badge from '../../components/common/Badge';
-import { Calendar, MapPin, Clock, Users, CheckCircle2, PlusCircle, Send, Crown, ShieldAlert, UserCheck, Eye, GraduationCap, FolderKanban, Globe, Lock } from 'lucide-react';
+import QRCodeTicketModal from '../../components/common/QRCodeTicketModal';
+import { Calendar, MapPin, Clock, Users, CheckCircle2, PlusCircle, Send, Crown, ShieldAlert, UserCheck, Eye, GraduationCap, FolderKanban, Globe, Lock, QrCode } from 'lucide-react';
 
 const EventsPage = () => {
   const { user } = useAuth();
@@ -12,12 +13,13 @@ const EventsPage = () => {
   const [allCommunities, setAllCommunities] = useState([]);
   const [userMemberships, setUserMemberships] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [scopeFilter, setScopeFilter] = useState('ALL'); // 'ALL', 'GLOBAL_EVENT', 'COMMUNITY_EVENT'
+  const [scopeFilter, setScopeFilter] = useState('ALL');
   const [showProposeModal, setShowProposeModal] = useState(false);
   const [proposalSubmitting, setProposalSubmitting] = useState(false);
 
-  // Registered Students Modal State
+  // Registered Students Modal & QR Code Pass State
   const [selectedEventForRegs, setSelectedEventForRegs] = useState(null);
+  const [qrModalEvent, setQrModalEvent] = useState(null);
   const [registrations, setRegistrations] = useState([]);
   const [loadingRegs, setLoadingRegs] = useState(false);
 
@@ -135,7 +137,7 @@ const EventsPage = () => {
     }
   };
 
-  if (loading) return <LoadingSpinner label="Loading events and memberships..." />;
+  if (loading) return <LoadingSpinner label="Loading campus events & gamification..." />;
 
   const userCommunityIds = userMemberships.map(m => m.communityId);
 
@@ -150,61 +152,54 @@ const EventsPage = () => {
 
   const isStudentLeader = leaderMemberships.length > 0 || user?.role === 'ROLE_COMMUNITY_COORDINATOR';
 
-  // Filter events based on Scope Filter & User Memberships
   const filteredEvents = events.filter((evt) => {
     if (evt.status === 'PENDING_APPROVAL' || evt.status === 'REJECTED') return false;
 
     const isGlobal = evt.eventScope === 'GLOBAL_EVENT';
-    const isMemberOfCommunity = userCommunityIds.includes(evt.communityId);
-
-    // Scope Filter
     if (scopeFilter === 'GLOBAL_EVENT' && !isGlobal) return false;
     if (scopeFilter === 'COMMUNITY_EVENT' && isGlobal) return false;
-
-    // Visibility: Global events visible to all. Community events visible to all or members
     return true;
   });
 
   return (
     <div className="space-y-8 p-4 lg:p-8">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
         <div>
-          <span className="text-xs font-serif font-bold text-warmgold-400 uppercase tracking-widest flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-warmgold-400" /> Campus Events & Gamification (+1 Pt)
+          <span className="text-xs font-bold text-[#F2CA50] uppercase tracking-widest flex items-center gap-1.5">
+            <Calendar className="w-4 h-4 text-[#F2CA50]" /> Campus Events & Gamification (+1 Pt)
           </span>
-          <h1 className="font-serif text-3xl font-extrabold text-white mt-1">
+          <h1 className="text-3xl font-extrabold text-white mt-1">
             Campus Events Schedule
           </h1>
-          <p className="text-xs text-stardustsilver-300/70 mt-1">
+          <p className="text-xs text-[#D0C5AF] mt-1">
             Participate in 🌐 <strong>Global Campus Events</strong> or 🔒 <strong>Community Events</strong> (Members Only). Earn <strong>+1 Point</strong> per registration!
           </p>
         </div>
 
-        {/* Propose Event Button - ONLY visible to Student Leaders */}
         {isStudentLeader ? (
           <button
             onClick={() => setShowProposeModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-warmgold-500 to-amber-500 text-black font-extrabold text-xs shadow-gold-glow hover:scale-105 transition self-start sm:self-auto"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl honey-btn text-xs font-extrabold shadow-gold-glow hover:scale-105 transition self-start sm:self-auto"
           >
             <Crown className="w-4 h-4 text-black" /> Propose New Event (Student Leader)
           </button>
         ) : (
-          <div className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-[11px] text-warmgold-300/80 flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-warmgold-400 shrink-0" />
+          <div className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-[11px] text-[#F2CA50]/90 flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-[#F2CA50] shrink-0" />
             <span>Event proposals are restricted to assigned <strong>Student Leaders</strong></span>
           </div>
         )}
       </div>
 
       {/* Scope Filter Bar */}
-      <div className="flex items-center gap-3 border-b border-stardustsilver-300/15 pb-4 overflow-x-auto">
+      <div className="flex items-center gap-3 border-b border-white/10 pb-4 overflow-x-auto">
         <button
           onClick={() => setScopeFilter('ALL')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
             scopeFilter === 'ALL'
-              ? 'bg-gradient-to-r from-warmgold-500 to-amber-500 text-black shadow-gold-glow font-extrabold'
-              : 'bg-arsenic-900 text-stardustsilver-300 hover:text-white border border-white/10'
+              ? 'bg-gradient-to-r from-[#F2CA50] to-amber-500 text-black shadow-gold-glow font-extrabold'
+              : 'bg-white/5 text-[#E2E2E8] hover:text-white border border-white/10'
           }`}
         >
           <Calendar className="w-3.5 h-3.5" /> All Campus Events ({events.length})
@@ -214,8 +209,8 @@ const EventsPage = () => {
           onClick={() => setScopeFilter('GLOBAL_EVENT')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
             scopeFilter === 'GLOBAL_EVENT'
-              ? 'bg-gradient-to-r from-warmgold-500 to-amber-500 text-black shadow-gold-glow font-extrabold'
-              : 'bg-arsenic-900 text-stardustsilver-300 hover:text-white border border-white/10'
+              ? 'bg-gradient-to-r from-[#F2CA50] to-amber-500 text-black shadow-gold-glow font-extrabold'
+              : 'bg-white/5 text-[#E2E2E8] hover:text-white border border-white/10'
           }`}
         >
           <Globe className="w-3.5 h-3.5" /> 🌐 Global Events (Open to All)
@@ -225,8 +220,8 @@ const EventsPage = () => {
           onClick={() => setScopeFilter('COMMUNITY_EVENT')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
             scopeFilter === 'COMMUNITY_EVENT'
-              ? 'bg-gradient-to-r from-warmgold-500 to-amber-500 text-black shadow-gold-glow font-extrabold'
-              : 'bg-arsenic-900 text-stardustsilver-300 hover:text-white border border-white/10'
+              ? 'bg-gradient-to-r from-[#F2CA50] to-amber-500 text-black shadow-gold-glow font-extrabold'
+              : 'bg-white/5 text-[#E2E2E8] hover:text-white border border-white/10'
           }`}
         >
           <Lock className="w-3.5 h-3.5" /> 🔒 Community Events (Members Only)
@@ -244,13 +239,13 @@ const EventsPage = () => {
             return (
               <div
                 key={evt.id}
-                className="glass-card p-6 rounded-2xl border border-stardustsilver-300/15 flex flex-col justify-between hover:border-warmgold-500/40 transition group cursor-pointer space-y-4"
+                className="glass-card-apple p-6 rounded-2xl border border-white/15 flex flex-col justify-between hover:border-[#F2CA50]/50 transition group cursor-pointer space-y-4 shadow-xl"
                 onClick={() => handleOpenRegistrationsModal(evt)}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-morning-500/20 text-morning-300 border border-morning-500/30">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F2CA50]/15 text-[#F2CA50] border border-[#F2CA50]/30">
                         {evt.eventType}
                       </span>
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
@@ -263,43 +258,51 @@ const EventsPage = () => {
                     <Badge status={evt.status}>{evt.status}</Badge>
                   </div>
 
-                  <h3 className="font-serif text-xl font-bold text-white group-hover:text-warmgold-300 transition flex items-center justify-between">
+                  <h3 className="text-xl font-extrabold text-white group-hover:text-[#F2CA50] transition flex items-center justify-between">
                     <span>{evt.title}</span>
-                    <Eye className="w-4 h-4 text-warmgold-400 opacity-60 group-hover:opacity-100 transition shrink-0" />
+                    <Eye className="w-4 h-4 text-[#F2CA50] opacity-60 group-hover:opacity-100 transition shrink-0" />
                   </h3>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-warmgold-400 font-serif font-bold">{evt.communityName}</span>
+                    <span className="text-xs text-[#F2CA50] font-bold">{evt.communityName}</span>
                     <span className="text-amber-300 text-xs font-bold font-mono">+1 Pt</span>
                   </div>
-                  <p className="text-xs text-stardustsilver-300/70 leading-relaxed">{evt.description}</p>
+                  <p className="text-xs text-[#D0C5AF]/80 leading-relaxed">{evt.description}</p>
 
-                  <div className="grid grid-cols-2 gap-2 text-[11px] text-stardustsilver-300/80 pt-3 border-t border-stardustsilver-300/15">
-                    <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-warmgold-400" /> {evt.eventDate}</div>
-                    <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-warmgold-400" /> {evt.time} ({evt.duration || '2 Hours'})</div>
-                    <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-warmgold-400" /> {evt.venue}</div>
-                    <div className="flex items-center gap-1.5 font-bold text-warmgold-300">
-                      <Users className="w-3.5 h-3.5 text-warmgold-400" /> {evt.currentRegistrations}/{evt.maxParticipants} Registered
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-[#D0C5AF]/80 pt-3 border-t border-white/10">
+                    <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-[#F2CA50]" /> {evt.eventDate}</div>
+                    <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-[#F2CA50]" /> {evt.time} ({evt.duration || '2 Hours'})</div>
+                    <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-[#F2CA50]" /> {evt.venue}</div>
+                    <div className="flex items-center gap-1.5 font-bold text-[#F2CA50]">
+                      <Users className="w-3.5 h-3.5 text-[#F2CA50]" /> {evt.currentRegistrations}/{evt.maxParticipants} Registered
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-stardustsilver-300/15 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                <div className="pt-3 border-t border-white/10 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => handleOpenRegistrationsModal(evt)}
                     className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs flex items-center gap-1.5 transition shrink-0"
                   >
-                    <Users className="w-3.5 h-3.5 text-warmgold-400" /> Roster ({evt.currentRegistrations})
+                    <Users className="w-3.5 h-3.5 text-[#F2CA50]" /> Roster ({evt.currentRegistrations})
                   </button>
 
                   {evt.isUserRegistered ? (
-                    <div className="flex-1 p-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold text-xs flex items-center justify-center gap-2 border border-emerald-500/30">
-                      <CheckCircle2 className="w-4 h-4" /> Registered (+1 Pt)
+                    <div className="flex-1 flex items-center gap-2">
+                      <div className="flex-1 p-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-bold text-xs flex items-center justify-center gap-1.5 border border-emerald-500/30">
+                        <CheckCircle2 className="w-4 h-4" /> Registered
+                      </div>
+                      <button
+                        onClick={() => setQrModalEvent(evt)}
+                        className="px-3 py-2 rounded-xl honey-btn text-xs font-bold flex items-center gap-1 shadow-md shrink-0"
+                      >
+                        <QrCode className="w-4 h-4" /> QR Ticket
+                      </button>
                     </div>
                   ) : canRegister ? (
                     <button
                       onClick={() => handleRegister(evt.id, evt)}
                       disabled={evt.status === 'CANCELLED' || evt.currentRegistrations >= evt.maxParticipants}
-                      className="flex-1 py-2 rounded-xl bg-gradient-to-r from-chestnut-700 to-warmgold-500 text-white font-bold text-xs shadow-lg hover:shadow-warmgold-500/20 transition disabled:opacity-50"
+                      className="flex-1 py-2 rounded-xl honey-btn text-xs font-bold shadow-md hover:scale-[1.02] transition disabled:opacity-50"
                     >
                       Register (+1 Pt)
                     </button>
@@ -314,245 +317,30 @@ const EventsPage = () => {
           })}
         </div>
       ) : (
-        <div className="p-12 text-center text-xs text-stardustsilver-300/60 glass-panel rounded-3xl border border-dashed border-white/15 space-y-4">
-          <FolderKanban className="w-10 h-10 text-warmgold-400/40 mx-auto" />
+        <div className="p-12 text-center text-xs text-[#D0C5AF]/60 glass-panel-apple rounded-3xl border border-dashed border-white/15 space-y-4 shadow-xl">
+          <FolderKanban className="w-10 h-10 text-[#F2CA50]/40 mx-auto" />
           <div>
             <h3 className="text-base font-bold text-white">No Events Found Matching Filter ({scopeFilter})</h3>
-            <p className="text-xs text-stardustsilver-300/70 mt-1 max-w-md mx-auto">
+            <p className="text-xs text-[#D0C5AF] mt-1 max-w-md mx-auto">
               Join communities to unlock exclusive community events!
             </p>
           </div>
           <Link
             to="/student/communities"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-warmgold-500 to-amber-500 text-black font-extrabold text-xs shadow-gold-glow hover:scale-105 transition"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl honey-btn text-black font-extrabold text-xs shadow-gold-glow hover:scale-105 transition"
           >
             <Users className="w-4 h-4" /> Explore & Join Communities
           </Link>
         </div>
       )}
 
-      {/* MODAL 1: WHO'S REGISTERED FOR EVENT ROSTER */}
-      {selectedEventForRegs && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="glass-panel max-w-2xl w-full p-6 lg:p-8 rounded-3xl border border-warmgold-500/40 shadow-2xl relative max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <Users className="w-6 h-6 text-warmgold-400" />
-                <div>
-                  <h3 className="font-serif text-xl font-bold text-white">{selectedEventForRegs.title}</h3>
-                  <p className="text-[11px] text-warmgold-400 font-mono">
-                    Registered Students Roster ({registrations.length} / {selectedEventForRegs.maxParticipants || 100})
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedEventForRegs(null)}
-                className="text-white/60 hover:text-white text-lg font-bold px-2"
-              >
-                ✕
-              </button>
-            </div>
-
-            {loadingRegs ? (
-              <div className="p-12 text-center text-xs text-stardustsilver-300">
-                <LoadingSpinner label="Fetching registered students roster..." />
-              </div>
-            ) : registrations.length > 0 ? (
-              <div className="overflow-y-auto pr-1 space-y-3 flex-1">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {registrations.map((r, idx) => (
-                    <div
-                      key={r.id || idx}
-                      className="glass-card p-3.5 rounded-xl border border-white/10 space-y-1.5 hover:border-warmgold-400/40 transition"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-white text-xs flex items-center gap-1.5">
-                          <UserCheck className="w-3.5 h-3.5 text-emerald-400" /> {r.studentName}
-                        </span>
-                        <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                          {r.status || 'REGISTERED'}
-                        </span>
-                      </div>
-
-                      <div className="text-[11px] font-mono text-warmgold-300">Reg #{r.studentCode}</div>
-                      <div className="text-[10px] text-stardustsilver-300/70 flex items-center gap-1">
-                        <GraduationCap className="w-3 h-3 text-morning-300" /> {r.department}
-                      </div>
-                      <div className="text-[9px] text-stardustsilver-300/40 pt-1 font-mono">
-                        Registered: {r.registrationDate ? new Date(r.registrationDate).toLocaleString() : 'Recently'}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="p-12 text-center text-xs text-stardustsilver-300/50 glass-card rounded-2xl border border-dashed border-white/10">
-                <Users className="w-8 h-8 text-warmgold-400/40 mx-auto mb-2" />
-                No students have registered for this event yet.
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 2: STUDENT LEADER EVENT PROPOSAL MODAL */}
-      {showProposeModal && isStudentLeader && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="glass-panel max-w-lg w-full p-6 lg:p-8 rounded-3xl border border-warmgold-500/40 shadow-2xl relative">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
-              <div className="flex items-center gap-2">
-                <Crown className="w-6 h-6 text-warmgold-400" />
-                <div>
-                  <h3 className="font-serif text-xl font-bold text-white">Create Event Proposal</h3>
-                  <p className="text-[10px] text-warmgold-400 uppercase tracking-widest font-mono">Student Leader Submission</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowProposeModal(false)}
-                className="text-white/60 hover:text-white text-lg font-bold px-2"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleProposeSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Target Community</label>
-                <select
-                  required
-                  value={proposalForm.communityId}
-                  onChange={(e) => setProposalForm({ ...proposalForm, communityId: parseInt(e.target.value) || 1 })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white focus:outline-none focus:border-warmgold-400"
-                >
-                  {leaderMemberships.length > 0 ? (
-                    leaderMemberships.map((m) => (
-                      <option key={m.communityId} value={m.communityId}>
-                        {m.communityName} ({m.role})
-                      </option>
-                    ))
-                  ) : (
-                    allCommunities.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))
-                  )}
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Event Scope & Participation</label>
-                <select
-                  value={proposalForm.eventScope}
-                  onChange={(e) => setProposalForm({ ...proposalForm, eventScope: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white font-bold"
-                >
-                  <option value="COMMUNITY_EVENT">🔒 Community Event (Community Members Only)</option>
-                  <option value="GLOBAL_EVENT">🌐 Global Event (Open to ALL Campus Students)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Event Title</label>
-                <input
-                  type="text"
-                  required
-                  value={proposalForm.title}
-                  onChange={(e) => setProposalForm({ ...proposalForm, title: e.target.value })}
-                  placeholder="e.g. AI & Cloud Architecture Workshop"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white placeholder-white/20"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Event Type</label>
-                  <select
-                    value={proposalForm.eventType}
-                    onChange={(e) => setProposalForm({ ...proposalForm, eventType: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white"
-                  >
-                    <option value="WORKSHOP">WORKSHOP</option>
-                    <option value="SEMINAR">SEMINAR</option>
-                    <option value="HACKATHON">HACKATHON</option>
-                    <option value="CULTURAL">CULTURAL</option>
-                    <option value="SPORTS">SPORTS</option>
-                    <option value="TECHNICAL">TECHNICAL</option>
-                    <option value="WEBINAR">WEBINAR</option>
-                    <option value="COMMUNITY_SERVICE">COMMUNITY SERVICE</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Duration</label>
-                  <input
-                    type="text"
-                    required
-                    value={proposalForm.duration}
-                    onChange={(e) => setProposalForm({ ...proposalForm, duration: e.target.value })}
-                    placeholder="e.g. 2 Hours / Half Day"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Description</label>
-                <textarea
-                  rows={3}
-                  required
-                  value={proposalForm.description}
-                  onChange={(e) => setProposalForm({ ...proposalForm, description: e.target.value })}
-                  placeholder="Describe the proposed event objectives, agenda, and targeted audience..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white placeholder-white/20"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Proposed Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={proposalForm.eventDate}
-                    onChange={(e) => setProposalForm({ ...proposalForm, eventDate: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1">Venue</label>
-                  <input
-                    type="text"
-                    required
-                    value={proposalForm.venue}
-                    onChange={(e) => setProposalForm({ ...proposalForm, venue: e.target.value })}
-                    placeholder="e.g. Main Auditorium / Lab 3"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-4 flex items-center justify-end gap-3 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setShowProposeModal(false)}
-                  className="px-4 py-2 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={proposalSubmitting}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-warmgold-500 to-amber-500 text-black font-extrabold shadow-gold-glow flex items-center gap-2 disabled:opacity-50"
-                >
-                  {proposalSubmitting ? 'Submitting...' : 'Submit to Coordinator'} <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* QR Ticket Pass Modal */}
+      <QRCodeTicketModal
+        isOpen={!!qrModalEvent}
+        onClose={() => setQrModalEvent(null)}
+        event={qrModalEvent}
+        student={user}
+      />
     </div>
   );
 };
