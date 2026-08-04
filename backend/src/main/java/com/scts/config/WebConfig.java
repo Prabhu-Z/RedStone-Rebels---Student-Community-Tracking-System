@@ -32,8 +32,13 @@ public class WebConfig implements WebMvcConfigurer {
                             return null;
                         }
 
-                        // 3. For ALL React SPA routes (/login, /student/dashboard, etc.), return index.html
-                        return new ClassPathResource("/static/index.html");
+                        // 3. For ALL React SPA routes (/login, /student/dashboard, etc.), return index.html from static location
+                        Resource indexResource = location.createRelative("index.html");
+                        if (indexResource.exists() && indexResource.isReadable()) {
+                            return indexResource;
+                        }
+
+                        return new ClassPathResource("static/index.html");
                     }
                 });
     }
