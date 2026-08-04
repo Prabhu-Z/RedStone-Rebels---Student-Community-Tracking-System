@@ -10,16 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SpaController {
 
-    @GetMapping(value = {
-        "/",
-        "/{path:^(?!api|h2-console|uploads|assets|favicon\\.ico).*}",
-        "/{path1:^(?!api|h2-console|uploads|assets).*}/{path2:.*}",
-        "/{path1:^(?!api|h2-console|uploads|assets).*}/{path2:.*}/{path3:.*}"
-    }, produces = MediaType.TEXT_HTML_VALUE)
-    public ResponseEntity<Resource> serveSpa() {
-        Resource resource = new ClassPathResource("static/index.html");
+    @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<Resource> serveRoot() {
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
-                .body(resource);
+                .body(new ClassPathResource("static/index.html"));
     }
 }
