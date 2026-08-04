@@ -1,26 +1,25 @@
 package com.scts.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.web.servlet.error.ErrorController;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
-public class SpaController implements ErrorController {
+@RestController
+public class SpaController {
 
-    @RequestMapping(value = {
+    @GetMapping(value = {
         "/",
         "/{path:^(?!api|h2-console|uploads|assets|favicon\\.ico).*}",
         "/{path1:^(?!api|h2-console|uploads|assets).*}/{path2:.*}",
-        "/error"
-    })
-    public String redirect(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        // If request is for an API endpoint or static upload/asset file, let backend return error
-        if (uri.startsWith("/api") || uri.startsWith("/h2-console") || uri.startsWith("/uploads") || uri.startsWith("/assets")) {
-            return "forward:/error";
-        }
-        // For all React SPA routes, forward to index.html
-        return "forward:/index.html";
+        "/{path1:^(?!api|h2-console|uploads|assets).*}/{path2:.*}/{path3:.*}"
+    }, produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<Resource> serveSpa() {
+        Resource resource = new ClassPathResource("static/index.html");
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(resource);
     }
 }
