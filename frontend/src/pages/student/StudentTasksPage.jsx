@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
-import { CheckSquare, Link2, Upload, FileText, CheckCircle2, Clock, XCircle, ExternalLink, Users, Sparkles, Calendar } from 'lucide-react';
+import { CheckSquare, Link2, Upload, FileText, CheckCircle2, Clock, XCircle, ExternalLink, Users, Sparkles, Calendar, AlertCircle } from 'lucide-react';
 
 const StudentTasksPage = () => {
   const { user } = useAuth();
@@ -14,7 +14,7 @@ const StudentTasksPage = () => {
   const [loading, setLoading] = useState(true);
 
   // Category & Status Filter States
-  const [taskTypeFilter, setTaskTypeFilter] = useState('ALL'); // 'ALL', 'COMMUNITY_TASK', 'DAILY_TASK'
+  const [taskTypeFilter, setTaskTypeFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   // Submission Modal State
@@ -25,6 +25,7 @@ const StudentTasksPage = () => {
   const [proofFileUrl, setProofFileUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   useEffect(() => {
     fetchTasksAndMemberships();
@@ -67,6 +68,7 @@ const StudentTasksPage = () => {
     setProofFileName(task.proofFileName || '');
     setProofFileUrl(task.proofFileUrl || '');
     setSuccessMsg('');
+    setValidationError('');
     setSubmitModal(true);
   };
 
@@ -76,14 +78,23 @@ const StudentTasksPage = () => {
       setProofFileName(file.name);
       const fakeUrl = URL.createObjectURL(file);
       setProofFileUrl(fakeUrl);
+      setValidationError('');
     }
   };
 
   const handleSubmitProof = async (e) => {
     e.preventDefault();
     if (!selectedTask) return;
+
+    // Proof Validation Check
+    if (!proofLink.trim() && !proofFileName && !proofFileUrl) {
+      setValidationError('⚠️ Submission Blocked: You must provide a Proof URL/Link OR upload a proof photo/document before submitting.');
+      return;
+    }
+
     setSubmitting(true);
     setSuccessMsg('');
+    setValidationError('');
     try {
       await api.post(`/tasks/submissions/${selectedTask.id}/submit`, {
         proofLink: proofLink.trim(),
@@ -105,12 +116,9 @@ const StudentTasksPage = () => {
 
   if (loading) return <LoadingSpinner label="Loading assigned tasks and deliverables..." />;
 
-  // Filter Tasks by Category and Status
   const filteredTasks = tasks.filter((t) => {
-    // Status Filter
     if (statusFilter !== 'ALL' && t.status !== statusFilter) return false;
 
-    // Task Type Filter
     if (taskTypeFilter === 'COMMUNITY_TASK') {
       return t.taskType === 'COMMUNITY_TASK' || t.assignedByFacultyName != null;
     }
@@ -123,26 +131,26 @@ const StudentTasksPage = () => {
 
   return (
     <div className="space-y-8 p-4 lg:p-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Header Banner */}
+      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
         <div>
-          <span className="text-xs font-serif font-bold text-warmgold-400 uppercase tracking-widest flex items-center gap-1.5">
-            <CheckSquare className="w-4 h-4 text-warmgold-400" /> Deliverables & Proof Submissions
+          <span className="text-xs font-bold text-[#F2CA50] uppercase tracking-widest flex items-center gap-1.5">
+            <CheckSquare className="w-4 h-4 text-[#F2CA50]" /> Deliverables & Proof Submissions
           </span>
-          <h1 className="font-serif text-3xl font-extrabold text-white mt-1">My Assigned Tasks</h1>
-          <p className="text-xs text-stardustsilver-300/70 mt-1">
+          <h1 className="text-3xl font-extrabold text-white mt-1">My Assigned Tasks</h1>
+          <p className="text-xs text-[#D0C5AF] mt-1">
             Earn <strong>+1 Point</strong> for every verified task completion on your community leaderboard!
           </p>
         </div>
 
         {/* Category Tabs */}
-        <div className="flex items-center gap-2 p-1.5 bg-arsenic-900 rounded-2xl border border-white/10 self-start sm:self-auto overflow-x-auto">
+        <div className="flex items-center gap-2 p-1.5 bg-white/5 rounded-2xl border border-white/10 self-start sm:self-auto overflow-x-auto">
           <button
             onClick={() => setTaskTypeFilter('COMMUNITY_TASK')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
               taskTypeFilter === 'COMMUNITY_TASK'
-                ? 'bg-gradient-to-r from-warmgold-500 to-amber-500 text-black shadow-gold-glow font-extrabold'
-                : 'text-stardustsilver-300 hover:text-white'
+                ? 'bg-gradient-to-r from-[#F2CA50] to-amber-500 text-black shadow-gold-glow font-extrabold'
+                : 'text-[#D0C5AF] hover:text-white'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5" /> 🏛️ Community Tasks
@@ -152,8 +160,8 @@ const StudentTasksPage = () => {
             onClick={() => setTaskTypeFilter('DAILY_TASK')}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
               taskTypeFilter === 'DAILY_TASK'
-                ? 'bg-gradient-to-r from-warmgold-500 to-amber-500 text-black shadow-gold-glow font-extrabold'
-                : 'text-stardustsilver-300 hover:text-white'
+                ? 'bg-gradient-to-r from-[#F2CA50] to-amber-500 text-black shadow-gold-glow font-extrabold'
+                : 'text-[#D0C5AF] hover:text-white'
             }`}
           >
             <Calendar className="w-3.5 h-3.5" /> 📅 Daily Tasks
@@ -163,8 +171,8 @@ const StudentTasksPage = () => {
             onClick={() => setTaskTypeFilter('ALL')}
             className={`px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
               taskTypeFilter === 'ALL'
-                ? 'bg-gradient-to-r from-warmgold-500 to-amber-500 text-black shadow-gold-glow font-extrabold'
-                : 'text-stardustsilver-300 hover:text-white'
+                ? 'bg-gradient-to-r from-[#F2CA50] to-amber-500 text-black shadow-gold-glow font-extrabold'
+                : 'text-[#D0C5AF] hover:text-white'
             }`}
           >
             All ({tasks.length})
@@ -173,17 +181,17 @@ const StudentTasksPage = () => {
       </div>
 
       {/* Status Filter Sub-Bar */}
-      <div className="flex items-center justify-between border-b border-stardustsilver-300/15 pb-4">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4">
         <div className="flex items-center gap-2 overflow-x-auto">
-          <span className="text-xs text-stardustsilver-300/60 font-semibold mr-1">Filter Status:</span>
+          <span className="text-xs text-[#D0C5AF]/60 font-semibold mr-1">Filter Status:</span>
           {['ALL', 'PENDING', 'SUBMITTED', 'VERIFIED', 'REJECTED'].map((tab) => (
             <button
               key={tab}
               onClick={() => setStatusFilter(tab)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
                 statusFilter === tab
-                  ? 'bg-white/15 text-warmgold-300 border border-warmgold-500/40'
-                  : 'text-stardustsilver-300/60 hover:text-white bg-arsenic-900/40 border border-transparent'
+                  ? 'bg-white/15 text-[#F2CA50] border border-[#F2CA50]/40'
+                  : 'text-[#D0C5AF]/60 hover:text-white bg-white/5 border border-transparent'
               }`}
             >
               {tab}
@@ -201,7 +209,7 @@ const StudentTasksPage = () => {
             return (
               <div
                 key={t.id}
-                className="glass-card p-6 rounded-2xl border border-stardustsilver-300/15 flex flex-col justify-between space-y-4 hover:border-warmgold-500/40 transition group"
+                className="glass-card-apple p-6 rounded-2xl border border-white/15 flex flex-col justify-between space-y-4 hover:border-[#F2CA50]/40 transition group shadow-xl"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -213,17 +221,17 @@ const StudentTasksPage = () => {
                     <Badge status={t.status}>{t.status}</Badge>
                   </div>
 
-                  <h3 className="font-serif text-lg font-bold text-white group-hover:text-warmgold-300 transition">{t.taskTitle}</h3>
-                  <p className="text-xs text-stardustsilver-300/70 leading-relaxed line-clamp-3 font-sans">{t.taskDescription}</p>
+                  <h3 className="text-lg font-bold text-white group-hover:text-[#F2CA50] transition">{t.taskTitle}</h3>
+                  <p className="text-xs text-[#D0C5AF]/80 leading-relaxed line-clamp-3 font-sans">{t.taskDescription}</p>
 
-                  <div className="space-y-1.5 pt-2 border-t border-stardustsilver-300/15 text-xs text-stardustsilver-300/80">
+                  <div className="space-y-1.5 pt-2 border-t border-white/10 text-xs text-[#D0C5AF]/80">
                     <div className="flex items-center gap-2">
-                      <Clock className="w-3.5 h-3.5 text-warmgold-400" />
+                      <Clock className="w-3.5 h-3.5 text-[#F2CA50]" />
                       <span>
                         Deadline: <strong className="text-white">{t.deadline}</strong>
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-[11px] text-stardustsilver-300/60 font-mono">
+                    <div className="flex items-center justify-between text-[11px] text-[#D0C5AF]/60 font-mono">
                       <span>Community: {t.communityName}</span>
                       <span className="text-amber-300 font-bold">+1 Pt</span>
                     </div>
@@ -231,8 +239,8 @@ const StudentTasksPage = () => {
 
                   {/* Submitted Proof Details */}
                   {t.status !== 'PENDING' && (
-                    <div className="p-3 rounded-xl bg-arsenic-900/80 border border-white/10 space-y-1.5 text-xs">
-                      <div className="text-[10px] text-warmgold-400 font-semibold uppercase tracking-wider">
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1.5 text-xs">
+                      <div className="text-[10px] text-[#F2CA50] font-semibold uppercase tracking-wider">
                         Submitted Proof Details:
                       </div>
                       {t.proofLink && (
@@ -240,14 +248,14 @@ const StudentTasksPage = () => {
                           href={t.proofLink}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-warmgold-300 underline font-mono text-[11px] truncate flex items-center gap-1"
+                          className="text-[#F2CA50] underline font-mono text-[11px] truncate flex items-center gap-1"
                         >
-                          <Link2 className="w-3 h-3 text-warmgold-400" /> {t.proofLink} <ExternalLink className="w-3 h-3 inline" />
+                          <Link2 className="w-3 h-3 text-[#F2CA50]" /> {t.proofLink} <ExternalLink className="w-3 h-3 inline" />
                         </a>
                       )}
                       {t.proofFileName && (
-                        <div className="text-stardustsilver-300 text-[11px] font-mono flex items-center gap-1">
-                          <FileText className="w-3 h-3 text-stardustsilver-300" /> {t.proofFileName}
+                        <div className="text-[#D0C5AF] text-[11px] font-mono flex items-center gap-1">
+                          <FileText className="w-3 h-3 text-[#D0C5AF]" /> {t.proofFileName}
                         </div>
                       )}
                       {t.status === 'REJECTED' && t.rejectionReason && (
@@ -259,13 +267,13 @@ const StudentTasksPage = () => {
                   )}
                 </div>
 
-                <div className="pt-3 border-t border-stardustsilver-300/15">
+                <div className="pt-3 border-t border-white/10">
                   {t.status === 'PENDING' && (
                     <button
                       onClick={() => handleOpenSubmitModal(t)}
-                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-chestnut-700 to-warmgold-500 text-white font-bold text-xs shadow-lg hover:shadow-warmgold-500/20 transition flex items-center justify-center gap-2"
+                      className="w-full py-2.5 rounded-xl honey-btn text-xs font-bold shadow-md flex items-center justify-center gap-2"
                     >
-                      <Upload className="w-4 h-4" /> Submit Task Proof
+                      <Upload className="w-4 h-4 text-black" /> Submit Task Proof
                     </button>
                   )}
                   {t.status === 'SUBMITTED' && (
@@ -273,7 +281,7 @@ const StudentTasksPage = () => {
                       onClick={() => handleOpenSubmitModal(t)}
                       className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs flex items-center justify-center gap-2 transition"
                     >
-                      <Upload className="w-4 h-4 text-warmgold-400" /> Update Submitted Proof
+                      <Upload className="w-4 h-4 text-[#F2CA50]" /> Update Submitted Proof
                     </button>
                   )}
                   {t.status === 'VERIFIED' && (
@@ -295,11 +303,11 @@ const StudentTasksPage = () => {
           })}
         </div>
       ) : (
-        <div className="glass-panel p-12 rounded-3xl border border-dashed border-stardustsilver-300/20 text-center space-y-4">
-          <CheckSquare className="w-10 h-10 text-warmgold-400/40 mx-auto" />
+        <div className="glass-panel-apple p-12 rounded-3xl border border-dashed border-white/20 text-center space-y-4 shadow-xl">
+          <CheckSquare className="w-10 h-10 text-[#F2CA50]/40 mx-auto" />
           <div>
-            <h3 className="font-serif text-lg font-bold text-white">No Tasks Matching Filter ({statusFilter})</h3>
-            <p className="text-xs text-stardustsilver-300/60 mt-1 max-w-md mx-auto">
+            <h3 className="text-lg font-bold text-white">No Tasks Matching Filter ({statusFilter})</h3>
+            <p className="text-xs text-[#D0C5AF]/60 mt-1 max-w-md mx-auto">
               Tasks assigned by your Community Coordinator appear strictly after joining that community!
             </p>
           </div>
@@ -313,11 +321,17 @@ const StudentTasksPage = () => {
         title={selectedTask ? `Submit Proof - ${selectedTask.taskTitle}` : 'Submit Task Proof'}
       >
         <form onSubmit={handleSubmitProof} className="space-y-4 text-xs">
-          <div className="p-3.5 rounded-xl bg-arsenic-900 border border-white/10 space-y-1">
+          <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1">
             <div className="font-bold text-white text-sm">{selectedTask?.taskTitle}</div>
-            <div className="text-stardustsilver-300/80 leading-relaxed text-xs">{selectedTask?.taskDescription}</div>
-            <div className="text-warmgold-400 font-mono text-[11px] pt-1">Deadline: {selectedTask?.deadline}</div>
+            <div className="text-[#D0C5AF] leading-relaxed text-xs">{selectedTask?.taskDescription}</div>
+            <div className="text-[#F2CA50] font-mono text-[11px] pt-1">Deadline: {selectedTask?.deadline}</div>
           </div>
+
+          {validationError && (
+            <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2 font-bold">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" /> {validationError}
+            </div>
+          )}
 
           {successMsg && (
             <div className="p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2 font-bold">
@@ -327,31 +341,34 @@ const StudentTasksPage = () => {
 
           {/* Proof Link Input */}
           <div>
-            <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <Link2 className="w-3.5 h-3.5 text-warmgold-400" /> Proof URL / Link (e.g. GitHub, Google Drive, Project Demo)
+            <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              <Link2 className="w-3.5 h-3.5 text-[#F2CA50]" /> Proof URL / Link (GitHub, Google Drive, Project Demo)
             </label>
             <input
               type="url"
               value={proofLink}
-              onChange={(e) => setProofLink(e.target.value)}
+              onChange={(e) => {
+                setProofLink(e.target.value);
+                setValidationError('');
+              }}
               placeholder="https://github.com/my-project or https://drive.google.com/..."
-              className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-white/15 text-white text-xs focus:outline-none focus:border-warmgold-400 font-mono"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50] font-mono"
             />
           </div>
 
-          {/* Proof File Attachment (Photo / PDF) */}
+          {/* Proof File Attachment */}
           <div>
-            <label className="block font-semibold text-almond-200 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <Upload className="w-3.5 h-3.5 text-warmgold-400" /> Upload Proof Photo or PDF Document
+            <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              <Upload className="w-3.5 h-3.5 text-[#F2CA50]" /> Upload Proof Screenshot / Photo / PDF
             </label>
             <input
               type="file"
               accept="image/*,application/pdf"
               onChange={handleFileUpload}
-              className="w-full px-3.5 py-2 rounded-xl bg-arsenic-900 border border-white/15 text-stardustsilver-300 text-xs file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-warmgold-500/20 file:text-warmgold-300 hover:file:bg-warmgold-500/30"
+              className="w-full px-3.5 py-2 rounded-xl bg-white/5 border border-white/15 text-[#D0C5AF] text-xs file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#F2CA50]/20 file:text-[#F2CA50] hover:file:bg-[#F2CA50]/30"
             />
             {proofFileName && (
-              <div className="mt-1.5 text-xs text-warmgold-300 flex items-center gap-1 font-mono">
+              <div className="mt-1.5 text-xs text-[#F2CA50] flex items-center gap-1 font-mono">
                 <FileText className="w-3.5 h-3.5" /> Selected File: {proofFileName}
               </div>
             )}
@@ -368,7 +385,7 @@ const StudentTasksPage = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-chestnut-700 to-warmgold-500 text-white font-bold text-xs shadow-lg flex items-center gap-1.5 disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl honey-btn text-black font-bold text-xs shadow-lg flex items-center gap-1.5 disabled:opacity-50"
             >
               <Upload className="w-4 h-4" />
               {submitting ? 'Submitting...' : 'Submit Task Proof'}

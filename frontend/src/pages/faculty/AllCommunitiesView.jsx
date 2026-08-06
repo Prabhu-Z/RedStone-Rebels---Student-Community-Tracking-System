@@ -4,11 +4,12 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import CommunityDetailModal from '../../components/common/CommunityDetailModal';
-import { Search, Plus, UserCheck, Eye, KeyRound, CheckCircle2 } from 'lucide-react';
+import { Search, Plus, UserCheck, Eye, KeyRound, CheckCircle2, ShieldCheck, Crown, Users } from 'lucide-react';
 
 const AllCommunitiesView = () => {
   const [communities, setCommunities] = useState([]);
   const [staffUsers, setStaffUsers] = useState([]);
+  const [allUsersList, setAllUsersList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
@@ -32,6 +33,8 @@ const AllCommunitiesView = () => {
   // Assign Coordinator Modal State
   const [assignModal, setAssignModal] = useState(false);
   const [selectedCommunity, setSelectedCommunity] = useState(null);
+  const [communityMembersList, setCommunityMembersList] = useState([]);
+  const [selectedStudentMembershipId, setSelectedStudentMembershipId] = useState('');
   const [assignData, setAssignData] = useState({
     facultyCoordinator: '',
     studentCoordinator: '',
@@ -53,17 +56,40 @@ const AllCommunitiesView = () => {
 
   const fetchData = async () => {
     try {
-      const [commRes, staffRes] = await Promise.all([
+      const [commRes, staffRes, usersRes] = await Promise.all([
         api.get('/communities'),
         api.get('/users/coordinators').catch(() => ({ data: [] })),
+        api.get('/users/all').catch(() => ({ data: [] })),
       ]);
-      setCommunities(commRes.data);
+      setCommunities(commRes.data || []);
       setStaffUsers(staffRes.data || []);
+      setAllUsersList(usersRes.data || []);
     } catch (err) {
       console.error('Error fetching communities & staff:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper to extract clean name without @mailid
+  const extractOnlyName = (userObj) => {
+    if (!userObj) return '';
+    const nameStr = userObj.name && userObj.name.trim() ? userObj.name.trim() : '';
+    
+    if (nameStr && !nameStr.includes('@')) {
+      return nameStr;
+    }
+
+    const emailOrName = nameStr || userObj.email || userObj.studentName || '';
+    if (emailOrName.includes('@')) {
+      const rawUsername = emailOrName.split('@')[0];
+      return rawUsername
+        .split('.')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+    }
+
+    return emailOrName;
   };
 
   const handleOpenDetailModal = (community) => {
@@ -94,7 +120,7 @@ const AllCommunitiesView = () => {
     }
   };
 
-  const handleOpenAssignModal = (e, community) => {
+  const handleOpenAssignModal = async (e, community) => {
     e.stopPropagation();
     setSelectedCommunity(community);
     setAssignData({
@@ -102,6 +128,17 @@ const AllCommunitiesView = () => {
       studentCoordinator: community.studentCoordinator || '',
       coordinatorUserId: community.coordinatorUserId || '',
     });
+    setSelectedStudentMembershipId('');
+
+    // Fetch approved members of this specific community for Student Head selection
+    try {
+      const res = await api.get(`/memberships/community/${community.id}`);
+      const approved = (res.data || []).filter(m => m.status === 'APPROVED');
+      setCommunityMembersList(approved);
+    } catch (err) {
+      setCommunityMembersList([]);
+    }
+
     setAssignModal(true);
   };
 
@@ -110,12 +147,19 @@ const AllCommunitiesView = () => {
     if (!selectedCommunity) return;
     setSubmitting(true);
     try {
+      const parsedUserId = assignData.coordinatorUserId ? parseInt(assignData.coordinatorUserId) : null;
       await api.put(`/communities/${selectedCommunity.id}`, {
         ...selectedCommunity,
         facultyCoordinator: assignData.facultyCoordinator,
         studentCoordinator: assignData.studentCoordinator,
-        coordinatorUserId: assignData.coordinatorUserId ? Long(assignData.coordinatorUserId) : null,
+        coordinatorUserId: parsedUserId,
       });
+
+      // If a student member was chosen, promote their membership role to STUDENT_COORDINATOR!
+      if (selectedStudentMembershipId) {
+        await api.put(`/memberships/${selectedStudentMembershipId}/assign-leader`).catch(() => {});
+      }
+
       setAssignModal(false);
       fetchData();
     } catch (err) {
@@ -125,13 +169,30 @@ const AllCommunitiesView = () => {
     }
   };
 
+  const handleEmailInputChange = (inputEmail) => {
+    const trimmed = inputEmail.trim().toLowerCase();
+    const matchedUser = allUsersList.find(u => u.email?.toLowerCase() === trimmed);
+
+    setGrantData(prev => ({
+      ...prev,
+      email: inputEmail,
+      name: matchedUser ? extractOnlyName(matchedUser) : extractOnlyName({ email: inputEmail })
+    }));
+  };
+
   const handleGrantAccessByEmail = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setGrantSuccess('');
     setErrorMsg('');
     try {
-      const res = await api.post('/users/grant-coordinator', grantData);
+      const payload = {
+        email: grantData.email.trim(),
+        name: grantData.name.trim(),
+        communityId: grantData.communityId ? parseInt(grantData.communityId) : null
+      };
+
+      const res = await api.post('/users/grant-coordinator', payload);
       setGrantSuccess(res.data.message || 'Coordinator access granted successfully!');
       setGrantData({ email: '', name: '', communityId: '' });
       fetchData();
@@ -154,41 +215,54 @@ const AllCommunitiesView = () => {
       c.category.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Exclude staff/coordinators who are ALREADY assigned to another community
+  const assignedCoordinatorUserIds = communities
+    .map(c => c.coordinatorUserId)
+    .filter(Boolean);
+
+  const availableStaffUsers = staffUsers.filter(u => {
+    if (!selectedCommunity) return true;
+    return !assignedCoordinatorUserIds.includes(u.id) || u.id === selectedCommunity.coordinatorUserId;
+  });
+
   return (
     <div className="space-y-8 p-4 lg:p-8">
-      {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Top Header Banner */}
+      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xl">
         <div>
-          <h1 className="font-serif text-3xl font-extrabold text-white">All College Communities</h1>
-          <p className="text-xs text-stardustsilver-300/70 mt-1">
+          <span className="text-xs font-bold text-[#F2CA50] uppercase tracking-widest flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-[#F2CA50]" /> Faculty Governance & Oversight
+          </span>
+          <h1 className="text-3xl font-extrabold text-white mt-1">All College Communities</h1>
+          <p className="text-xs text-[#D0C5AF] mt-1">
             Faculty oversight, new community creation, staff role grants, and coordinator dropdown assignments.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative w-full sm:w-56">
-            <Search className="w-4 h-4 text-stardustsilver-300/40 absolute left-3 top-3" />
+            <Search className="w-4 h-4 text-[#D0C5AF]/40 absolute left-3 top-3" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search communities..."
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white placeholder-almond-300/30 text-xs focus:outline-none focus:border-warmgold-500/60"
+              className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/30 text-xs focus:outline-none focus:border-[#F2CA50]"
             />
           </div>
 
           <button
             onClick={() => setGrantModal(true)}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gradient-to-r from-liver-700 to-chestnut-700 border border-warmgold-500/30 text-warmgold-300 font-bold text-xs shadow-lg hover:border-warmgold-400 transition flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-[#F2CA50] font-bold text-xs shadow-lg transition flex items-center justify-center gap-2"
           >
-            <KeyRound className="w-4 h-4 text-warmgold-400" /> Grant Role by Email
+            <KeyRound className="w-4 h-4 text-[#F2CA50]" /> Grant Role by Email
           </button>
 
           <button
             onClick={() => setCreateModal(true)}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-chestnut-700 to-warmgold-500 text-white font-bold text-xs shadow-lg hover:shadow-warmgold-500/20 transition flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl honey-btn text-black font-extrabold text-xs shadow-gold-glow flex items-center justify-center gap-2 hover:scale-105 transition"
           >
-            <Plus className="w-4 h-4" /> Create Community
+            <Plus className="w-4 h-4 text-black" /> Create Community
           </button>
         </div>
       </div>
@@ -199,25 +273,25 @@ const AllCommunitiesView = () => {
           <div
             key={c.id}
             onClick={() => handleOpenDetailModal(c)}
-            className="glass-card p-6 rounded-2xl border border-stardustsilver-300/15 space-y-4 flex flex-col justify-between cursor-pointer hover:border-warmgold-500/50 hover:shadow-2xl transition-all duration-300 group"
+            className="glass-card-apple p-6 rounded-2xl border border-white/15 space-y-4 flex flex-col justify-between cursor-pointer hover:border-[#F2CA50]/50 hover:shadow-2xl transition-all duration-300 group shadow-xl"
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-chestnut-700/30 text-warmgold-400 border border-warmgold-500/20">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F2CA50]/15 text-[#F2CA50] border border-[#F2CA50]/30">
                   {c.category}
                 </span>
                 <Badge status={c.status}>{c.status}</Badge>
               </div>
 
-              <h3 className="font-serif text-xl font-bold text-white group-hover:text-warmgold-400 transition-colors flex items-center justify-between">
+              <h3 className="text-xl font-extrabold text-white group-hover:text-[#F2CA50] transition-colors flex items-center justify-between">
                 <span>{c.name}</span>
-                <Eye className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-warmgold-400" />
+                <Eye className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity text-[#F2CA50]" />
               </h3>
-              <p className="text-xs text-stardustsilver-300/70 line-clamp-3 leading-relaxed">{c.description}</p>
+              <p className="text-xs text-[#D0C5AF]/80 line-clamp-3 leading-relaxed">{c.description}</p>
             </div>
 
-            <div className="space-y-3 pt-4 border-t border-stardustsilver-300/15">
-              <div className="grid grid-cols-2 gap-2 text-[11px] text-stardustsilver-300/60">
+            <div className="space-y-3 pt-4 border-t border-white/10">
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-[#D0C5AF]/70">
                 <div>
                   <strong>Faculty Lead:</strong> {c.facultyCoordinator || 'Unassigned'}
                 </div>
@@ -225,7 +299,7 @@ const AllCommunitiesView = () => {
                   <strong>Student Lead:</strong> {c.studentCoordinator || 'Unassigned'}
                 </div>
                 <div>
-                  <strong>Active Members:</strong> <span className="text-warmgold-400 font-bold">{c.memberCount}</span>
+                  <strong>Active Members:</strong> <span className="text-[#F2CA50] font-bold">{c.memberCount}</span>
                 </div>
                 <div>
                   <strong>Upcoming Events:</strong> {c.upcomingEventCount}
@@ -234,7 +308,7 @@ const AllCommunitiesView = () => {
 
               <button
                 onClick={(e) => handleOpenAssignModal(e, c)}
-                className="w-full py-2 rounded-xl bg-arsenic-800/80 hover:bg-chestnut-700/40 text-warmgold-400 border border-warmgold-500/20 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+                className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/15 text-[#F2CA50] border border-white/15 text-xs font-bold flex items-center justify-center gap-1.5 transition"
               >
                 <UserCheck className="w-3.5 h-3.5" /> Assign Staff Coordinators
               </button>
@@ -252,9 +326,9 @@ const AllCommunitiesView = () => {
 
       {/* Modal: Grant Coordinator Access By Email */}
       <Modal isOpen={grantModal} onClose={() => setGrantModal(false)} title="Grant Coordinator Role by Email">
-        <form onSubmit={handleGrantAccessByEmail} className="space-y-4">
-          <div className="p-3.5 rounded-xl bg-warmgold-500/10 border border-warmgold-500/30 text-xs text-warmgold-300">
-            Grant <strong>Community Coordinator</strong> access to a registered user by entering their email address (e.g. <code>student@scts.edu</code>). The target user must already have a registered SCTS account.
+        <form onSubmit={handleGrantAccessByEmail} className="space-y-4 text-xs">
+          <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 text-xs text-[#F2CA50]">
+            Grant <strong>Community Coordinator</strong> access to a registered user by entering their email address (e.g. <code>student@scts.edu</code>). Name auto-fills upon typing a registered email address.
           </div>
 
           {grantSuccess && (
@@ -263,61 +337,61 @@ const AllCommunitiesView = () => {
             </div>
           )}
 
-          {errorMsg && <div className="p-3 rounded-lg bg-chestnut-900/50 text-red-300 text-xs">{errorMsg}</div>}
+          {errorMsg && <div className="p-3 rounded-lg bg-rose-950/50 text-rose-300 text-xs font-bold">{errorMsg}</div>}
 
           <div>
-            <label className="block text-xs font-medium text-almond-200 mb-1">Coordinator Email Address *</label>
+            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Coordinator Email Address *</label>
             <input
               type="email"
               required
               value={grantData.email}
-              onChange={(e) => setGrantData({ ...grantData, email: e.target.value })}
+              onChange={(e) => handleEmailInputChange(e.target.value)}
               placeholder="e.g. student@scts.edu"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60 font-mono"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50] font-mono"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-almond-200 mb-1">Coordinator Staff / Lead Name (Optional)</label>
+            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Coordinator Name (Only name, no email domain)</label>
             <input
               type="text"
               value={grantData.name}
               onChange={(e) => setGrantData({ ...grantData, name: e.target.value })}
               placeholder="e.g. Jack Smith"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-almond-200 mb-1">Assign to Community (Optional)</label>
+            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Assign to Community (Optional)</label>
             <select
               value={grantData.communityId}
               onChange={(e) => setGrantData({ ...grantData, communityId: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
             >
-              <option value="">-- Do not assign to a specific community yet --</option>
+              <option value="" className="bg-black text-white">-- Do not assign to a specific community yet --</option>
               {communities.map((c) => (
-                <option key={c.id} value={c.id}>
+                <option key={c.id} value={c.id} className="bg-black text-white">
                   {c.name} ({c.category})
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="pt-4 flex justify-end gap-3">
+          <div className="pt-4 flex justify-end gap-3 border-t border-white/10">
             <button
               type="button"
               onClick={() => setGrantModal(false)}
-              className="px-4 py-2 rounded-xl text-stardustsilver-300 hover:text-white text-xs"
+              className="px-4 py-2 rounded-xl text-[#D0C5AF] hover:text-white text-xs font-bold"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 rounded-xl bg-warmgold-500 text-arsenic-950 font-bold text-xs hover:bg-warmgold-400 transition flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl honey-btn text-black font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
             >
-              <KeyRound className="w-4 h-4" />
+              <KeyRound className="w-4 h-4 text-black" />
               {submitting ? 'Granting Access...' : 'Grant Coordinator Access'}
             </button>
           </div>
@@ -326,84 +400,84 @@ const AllCommunitiesView = () => {
 
       {/* Modal: Create New Community */}
       <Modal isOpen={createModal} onClose={() => setCreateModal(false)} title="Create New College Community">
-        <form onSubmit={handleCreateCommunity} className="space-y-4">
-          {errorMsg && <div className="p-3 rounded-lg bg-chestnut-900/50 text-red-300 text-xs">{errorMsg}</div>}
+        <form onSubmit={handleCreateCommunity} className="space-y-4 text-xs">
+          {errorMsg && <div className="p-3 rounded-lg bg-rose-950/50 text-rose-300 text-xs font-bold">{errorMsg}</div>}
 
           <div>
-            <label className="block text-xs font-medium text-almond-200 mb-1">Community Name *</label>
+            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Community Name *</label>
             <input
               type="text"
               required
               value={newCommunity.name}
               onChange={(e) => setNewCommunity({ ...newCommunity, name: e.target.value })}
               placeholder="e.g. Artificial Intelligence Club"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-almond-200 mb-1">Category *</label>
+            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Category *</label>
             <select
               value={newCommunity.category}
               onChange={(e) => setNewCommunity({ ...newCommunity, category: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
             >
-              <option value="TECHNICAL">Technical & Engineering</option>
-              <option value="CULTURAL">Cultural & Fine Arts</option>
-              <option value="SPORTS">Sports & Athletics</option>
-              <option value="SOCIAL_SERVICE">Social Service & NSS</option>
-              <option value="ACADEMIC">Academic & Research</option>
-              <option value="LEADERSHIP">Leadership & Innovation</option>
+              <option value="TECHNICAL" className="bg-black text-white">Technical & Engineering</option>
+              <option value="CULTURAL" className="bg-black text-white">Cultural & Fine Arts</option>
+              <option value="SPORTS" className="bg-black text-white">Sports & Athletics</option>
+              <option value="SOCIAL_SERVICE" className="bg-black text-white">Social Service & NSS</option>
+              <option value="ACADEMIC" className="bg-black text-white">Academic & Research</option>
+              <option value="LEADERSHIP" className="bg-black text-white">Leadership & Innovation</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-almond-200 mb-1">Description *</label>
+            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Description *</label>
             <textarea
               required
               rows={3}
               value={newCommunity.description}
               onChange={(e) => setNewCommunity({ ...newCommunity, description: e.target.value })}
               placeholder="Describe community objectives, activities, and membership criteria..."
-              className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-almond-200 mb-1">Select / Write Faculty Lead</label>
+              <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Faculty Lead Name</label>
               <input
                 type="text"
                 value={newCommunity.facultyCoordinator}
                 onChange={(e) => setNewCommunity({ ...newCommunity, facultyCoordinator: e.target.value })}
                 placeholder="Dr. Faculty Lead Name"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-almond-200 mb-1">Select / Write Student Lead</label>
+              <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Student Lead Name</label>
               <input
                 type="text"
                 value={newCommunity.studentCoordinator}
                 onChange={(e) => setNewCommunity({ ...newCommunity, studentCoordinator: e.target.value })}
                 placeholder="Student Lead Name"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
               />
             </div>
           </div>
 
-          <div className="pt-4 flex justify-end gap-3">
+          <div className="pt-4 flex justify-end gap-3 border-t border-white/10">
             <button
               type="button"
               onClick={() => setCreateModal(false)}
-              className="px-4 py-2 rounded-xl text-stardustsilver-300 hover:text-white text-xs"
+              className="px-4 py-2 rounded-xl text-[#D0C5AF] hover:text-white text-xs font-bold"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 rounded-xl bg-warmgold-500 text-arsenic-950 font-bold text-xs hover:bg-warmgold-400 transition"
+              className="px-5 py-2 rounded-xl honey-btn text-black font-bold text-xs disabled:opacity-50"
             >
               {submitting ? 'Creating...' : 'Create Community'}
             </button>
@@ -411,88 +485,119 @@ const AllCommunitiesView = () => {
         </form>
       </Modal>
 
-      {/* Modal: Assign Staff Coordinator (With Dropdown List) */}
+      {/* Modal: Assign Staff Coordinator & Student Head */}
       <Modal
         isOpen={assignModal}
         onClose={() => setAssignModal(false)}
-        title={selectedCommunity ? `Assign Staff Coordinator - ${selectedCommunity.name}` : 'Assign Coordinator'}
+        title={selectedCommunity ? `Assign Leadership - ${selectedCommunity.name}` : 'Assign Leadership'}
       >
-        <form onSubmit={handleAssignCoordinator} className="space-y-4">
-          <div className="p-3 rounded-xl bg-arsenic-900 border border-warmgold-500/30 text-xs text-stardustsilver-300">
-            Select a registered coordinator or faculty staff from the dropdown list, or enter custom details.
+        <form onSubmit={handleAssignCoordinator} className="space-y-4 text-xs">
+          <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-[#F2CA50]">
+            Selecting an unassigned staff member auto-fills the clean <strong>Faculty Lead Name</strong>. Selecting a student member auto-fills <strong>Student Head Name</strong> (Optional).
           </div>
 
-          {/* Registered Coordinators Dropdown */}
-          {staffUsers.length > 0 && (
-            <div>
-              <label className="block text-xs font-semibold text-warmgold-400 mb-1">
-                Select from Registered Coordinator Staff Dropdown
-              </label>
-              <select
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val) {
-                    const u = staffUsers.find((user) => user.email === val || user.id.toString() === val);
-                    if (u) {
-                      setAssignData({
-                        ...assignData,
-                        studentCoordinator: u.email,
-                        coordinatorUserId: u.id,
-                      });
-                    }
+          {/* 1. Unassigned Coordinators Dropdown -> Auto-fills Faculty Lead (Name Only) */}
+          <div>
+            <label className="block text-xs font-bold text-[#F2CA50] mb-1">
+              Select Unassigned Coordinator Staff Member ({availableStaffUsers.length} Available)
+            </label>
+            <select
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val) {
+                  const u = availableStaffUsers.find((user) => user.email === val || user.id.toString() === val);
+                  if (u) {
+                    const cleanName = extractOnlyName(u);
+                    setAssignData(prev => ({
+                      ...prev,
+                      facultyCoordinator: cleanName,
+                      coordinatorUserId: u.id,
+                    }));
                   }
-                }}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-950 border border-warmgold-500/40 text-white text-xs focus:outline-none focus:border-warmgold-400 font-mono"
-              >
-                <option value="">-- Choose Registered Staff Member --</option>
-                {staffUsers.map((u) => (
-                  <option key={u.id} value={u.email}>
-                    {u.email} ({u.role.replace('ROLE_', '')})
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+                }
+              }}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50] font-mono"
+            >
+              <option value="" className="bg-black text-white">-- Choose Available Unassigned Staff Member --</option>
+              {availableStaffUsers.map((u) => (
+                <option key={u.id} value={u.email} className="bg-black text-white">
+                  {extractOnlyName(u)} ({u.email})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 2. Respective Community Members Dropdown (OPTIONAL) */}
+          <div>
+            <label className="block text-xs font-bold text-[#F2CA50] mb-1 flex items-center gap-1.5">
+              <Crown className="w-3.5 h-3.5 text-[#F2CA50]" /> Select Student Head from Community Members (Optional) ({communityMembersList.length} Enrolled)
+            </label>
+            <select
+              onChange={(e) => {
+                const memId = e.target.value;
+                if (memId) {
+                  const m = communityMembersList.find(mem => mem.id.toString() === memId);
+                  if (m) {
+                    const cleanStudentName = extractOnlyName({ name: m.studentName, email: m.studentCode });
+                    setAssignData(prev => ({
+                      ...prev,
+                      studentCoordinator: cleanStudentName,
+                    }));
+                    setSelectedStudentMembershipId(m.id);
+                  }
+                } else {
+                  setSelectedStudentMembershipId('');
+                }
+              }}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50] font-mono"
+            >
+              <option value="" className="bg-black text-white">-- Choose Student Member to Promote to Head (Optional) --</option>
+              {communityMembersList.map((m) => (
+                <option key={m.id} value={m.id} className="bg-black text-white">
+                  🎓 {extractOnlyName({ name: m.studentName, email: m.studentCode })} ({m.studentCode} - {m.department || 'Student'})
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div>
-            <label className="block text-xs font-medium text-almond-200 mb-1">Faculty Lead / Staff Advisor</label>
+            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Faculty Lead / Staff Advisor (Name Only)</label>
             <input
               type="text"
               required
               value={assignData.facultyCoordinator}
               onChange={(e) => setAssignData({ ...assignData, facultyCoordinator: e.target.value })}
-              placeholder="e.g. Dr. Sarah Jenkins (Prof. CSE)"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60"
+              placeholder="e.g. Dr. Sarah Jenkins"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-almond-200 mb-1">Student Coordinator / Head</label>
+            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Student Coordinator / Head (Optional)</label>
             <input
               type="text"
-              required
               value={assignData.studentCoordinator}
               onChange={(e) => setAssignData({ ...assignData, studentCoordinator: e.target.value })}
-              placeholder="e.g. Alex Rivera (coordinator@scts.edu)"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-arsenic-900 border border-stardustsilver-300/15 text-white text-xs focus:outline-none focus:border-warmgold-500/60 font-mono"
+              placeholder="e.g. Alex Rivera (Optional)"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
             />
           </div>
 
-          <div className="pt-4 flex justify-end gap-3">
+          <div className="pt-4 flex justify-end gap-3 border-t border-white/10">
             <button
               type="button"
               onClick={() => setAssignModal(false)}
-              className="px-4 py-2 rounded-xl text-stardustsilver-300 hover:text-white text-xs"
+              className="px-4 py-2 rounded-xl text-[#D0C5AF] hover:text-white text-xs font-bold"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 rounded-xl bg-warmgold-500 text-arsenic-950 font-bold text-xs hover:bg-warmgold-400 transition flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl honey-btn text-black font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
             >
-              <UserCheck className="w-4 h-4" />
-              {submitting ? 'Updating...' : 'Assign Staff Coordinators'}
+              <UserCheck className="w-4 h-4 text-black" />
+              {submitting ? 'Assigning Leadership...' : 'Assign Staff & Student Head'}
             </button>
           </div>
         </form>

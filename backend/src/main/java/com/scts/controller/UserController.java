@@ -42,11 +42,65 @@ public class UserController {
         return ResponseEntity.ok(staffList);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userRepository.findAll());
+    }
+
+    @PutMapping("/{userId}/reassign-community")
+    public ResponseEntity<?> reassignCoordinatorCommunity(
+            @PathVariable Long userId,
+            @RequestParam(required = false) Long newCommunityId) {
+
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found."));
+        }
+        User user = optionalUser.get();
+
+        // 1. Clean Slate: Unassign user from all previous communities
+        List<Community> existingCommunities = communityRepository.findAll();
+        for (Community c : existingCommunities) {
+            if (user.getId().equals(c.getCoordinatorUserId())) {
+                c.setCoordinatorUserId(null);
+                communityRepository.save(c);
+            }
+        }
+
+        // 2. Assign to new community if provided
+        if (newCommunityId != null) {
+            Optional<Community> newCommOpt = communityRepository.findById(newCommunityId);
+            if (newCommOpt.isPresent()) {
+                Community newComm = newCommOpt.get();
+                newComm.setCoordinatorUserId(userId);
+                communityRepository.save(newComm);
+            }
+        }
+
+        notificationService.createNotification(
+                userId,
+                "Community Assignment Updated",
+                "Faculty has updated your assigned community. Previous community ties have been cleared.",
+                "ROLE_CHANGE"
+        );
+
+        return ResponseEntity.ok(Map.of("message", "Successfully reassigned coordinator and cleared previous community ties."));
+    }
+
     @PostMapping("/grant-coordinator")
     public ResponseEntity<?> grantCoordinatorAccess(@RequestBody Map<String, Object> payload) {
         String email = (String) payload.get("email");
         String name = (String) payload.get("name");
-        Long communityId = payload.get("communityId") != null ? Long.valueOf(payload.get("communityId").toString()) : null;
+        
+        Long communityId = null;
+        Object rawCommId = payload.get("communityId");
+        if (rawCommId != null && !rawCommId.toString().trim().isEmpty()) {
+            try {
+                communityId = Long.valueOf(rawCommId.toString().trim());
+            } catch (NumberFormatException e) {
+                communityId = null;
+            }
+        }
 
         if (email == null || email.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("message", "Email address is required."));
@@ -63,13 +117,24 @@ public class UserController {
         user.setRole(Role.ROLE_COMMUNITY_COORDINATOR);
         userRepository.save(user);
 
+        // If assigning to a community, clear user from any other community first
         if (communityId != null) {
+            List<Community> existingCommunities = communityRepository.findAll();
+            for (Community c : existingCommunities) {
+                if (user.getId().equals(c.getCoordinatorUserId())) {
+                    c.setCoordinatorUserId(null);
+                    communityRepository.save(c);
+                }
+            }
+
             Optional<Community> optionalCommunity = communityRepository.findById(communityId);
             if (optionalCommunity.isPresent()) {
                 Community community = optionalCommunity.get();
                 community.setCoordinatorUserId(user.getId());
                 if (name != null && !name.trim().isEmpty()) {
                     community.setStudentCoordinator(name);
+                } else if (user.getName() != null && !user.getName().trim().isEmpty()) {
+                    community.setStudentCoordinator(user.getName());
                 } else {
                     community.setStudentCoordinator(email);
                 }
