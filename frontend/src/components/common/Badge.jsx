@@ -9,18 +9,18 @@ const Badge = ({ children, status }) => {
       case 'PRESENT':
       case 'COMPLETED':
       case 'REGISTERED':
-        return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+        return 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
       case 'PENDING':
       case 'UPCOMING':
       case 'ONGOING':
-        return 'bg-warmgold-500/20 text-warmgold-400 border-warmgold-500/30';
+        return 'bg-amber-100 text-amber-900 border-amber-300 font-bold';
       case 'REJECTED':
       case 'CANCELLED':
       case 'ABSENT':
       case 'INACTIVE':
-        return 'bg-rose-500/20 text-rose-400 border-rose-500/30';
+        return 'bg-rose-100 text-rose-800 border-rose-300 font-bold';
       default:
-        return 'bg-morning-500/20 text-morning-300 border-morning-500/30';
+        return 'bg-purple-100 text-purple-800 border-purple-300 font-bold';
     }
   };
 

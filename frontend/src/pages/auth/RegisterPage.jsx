@@ -142,32 +142,32 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
-      <div className="glass-panel max-w-lg w-full p-8 rounded-3xl border border-[#F2CA50]/30 shadow-2xl relative z-10 my-8">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#eef2f6]">
+      <div className="bg-white border border-slate-200 shadow-xl rounded-3xl max-w-lg w-full p-8 relative z-10 my-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-[#F2CA50]/10 border border-[#F2CA50]/20 flex items-center justify-center shadow-lg">
-            <span className="material-symbols-outlined text-[#F2CA50] text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+          <div className="w-10 h-10 rounded-2xl bg-purple-100 text-[#7c3aed] border border-purple-200 flex items-center justify-center shadow-sm">
+            <span className="material-symbols-outlined text-[#8b5cf6] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               auto_awesome
             </span>
           </div>
           <div>
-            <h2 className="font-['Playfair_Display',serif] text-2xl font-bold text-white leading-none">
+            <h2 className="text-2xl font-extrabold text-slate-900 leading-none">
               {googleStep ? 'Complete Student Profile' : 'Register Student Account'}
             </h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#F2CA50] opacity-80 mt-0.5">SCTS Campus Access</p>
+            <p className="text-[10px] uppercase tracking-widest text-[#7c3aed] font-bold mt-0.5">SCTS Campus Access</p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold text-center flex items-center justify-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold text-center flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span>{success}</span>
           </div>
         )}
@@ -181,9 +181,9 @@ const RegisterPage = () => {
 
             <div className="relative my-6 text-center">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/10"></div>
+                <div className="w-full border-t border-slate-200"></div>
               </div>
-              <span className="relative z-10 px-3 bg-[#121216] text-[11px] text-[#D0C5AF]/60 font-mono uppercase tracking-widest">
+              <span className="relative z-10 px-3 bg-white text-[11px] text-slate-500 font-mono font-bold uppercase tracking-widest">
                 or register with details
               </span>
             </div>
@@ -192,35 +192,35 @@ const RegisterPage = () => {
 
         {/* Step 2: Google Verified Email Badge */}
         {googleStep && (
-          <div className="mb-6 p-3.5 rounded-2xl bg-[#F2CA50]/15 border border-[#F2CA50]/30 flex items-center justify-between text-xs">
+          <div className="mb-6 p-3.5 rounded-2xl bg-purple-50 border border-purple-200 flex items-center justify-between text-xs">
             <div className="flex items-center gap-2.5">
-              <UserCheck className="w-5 h-5 text-[#F2CA50]" />
+              <UserCheck className="w-5 h-5 text-[#8b5cf6]" />
               <div>
-                <div className="font-extrabold text-white">Google Verified Email</div>
-                <div className="text-[11px] text-[#D0C5AF] font-mono">{googleVerifiedEmail}</div>
+                <div className="font-extrabold text-slate-900">Google Verified Email</div>
+                <div className="text-[11px] text-slate-600 font-mono font-semibold">{googleVerifiedEmail}</div>
               </div>
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-[#F2CA50] text-[#3C2F00] font-extrabold text-[10px]">VERIFIED</span>
+            <span className="px-2.5 py-1 rounded-full bg-[#8b5cf6] text-white font-extrabold text-[10px]">VERIFIED</span>
           </div>
         )}
 
         {/* Student Onboarding Form (Name, Department, Degree, Year, Semester, Register Code) */}
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1">Full Student Name</label>
+            <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">Full Student Name</label>
             <input
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="e.g. Prabhu Kumar"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/20 text-xs focus:outline-none focus:border-[#F2CA50]/60 transition"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#8b5cf6] transition"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1">Email Address</label>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
               <input
                 type="email"
                 required
@@ -228,90 +228,90 @@ const RegisterPage = () => {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="name@scts.edu"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/20 text-xs focus:outline-none focus:border-[#F2CA50]/60 transition disabled:opacity-70"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#8b5cf6] transition disabled:opacity-70"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1">Password</label>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">Password</label>
               <input
                 type="password"
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/20 text-xs focus:outline-none focus:border-[#F2CA50]/60 transition"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#8b5cf6] transition"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1">Register No / Student Code</label>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">Register No / Student Code</label>
               <input
                 type="text"
                 required
                 value={formData.studentCode}
                 onChange={(e) => setFormData({ ...formData, studentCode: e.target.value })}
                 placeholder="REG2026101"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/20 text-xs focus:outline-none focus:border-[#F2CA50]/60 transition"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#8b5cf6] transition"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1">Department</label>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">Department</label>
               <select
                 value={formData.department}
                 onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#121216] border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]/60 transition"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs font-medium focus:outline-none focus:border-[#8b5cf6]"
               >
-                <option value="Computer Science & Engineering">Computer Science & Engineering</option>
-                <option value="Electronics & Communication">Electronics & Communication</option>
-                <option value="Electrical & Electronics">Electrical & Electronics</option>
-                <option value="Mechanical Engineering">Mechanical Engineering</option>
-                <option value="Civil Engineering">Civil Engineering</option>
-                <option value="Information Technology">Information Technology</option>
+                <option value="Computer Science & Engineering" className="bg-white text-slate-900">Computer Science & Engineering</option>
+                <option value="Electronics & Communication" className="bg-white text-slate-900">Electronics & Communication</option>
+                <option value="Electrical & Electronics" className="bg-white text-slate-900">Electrical & Electronics</option>
+                <option value="Mechanical Engineering" className="bg-white text-slate-900">Mechanical Engineering</option>
+                <option value="Civil Engineering" className="bg-white text-slate-900">Civil Engineering</option>
+                <option value="Information Technology" className="bg-white text-slate-900">Information Technology</option>
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1">Degree</label>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">Degree</label>
               <select
                 value={formData.degree}
                 onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
-                className="w-full px-2.5 py-2.5 rounded-xl bg-[#121216] border border-white/15 text-white text-xs"
+                className="w-full px-2.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs font-medium"
               >
-                <option value="B.Tech">B.Tech</option>
-                <option value="M.Tech">M.Tech</option>
-                <option value="BCA">BCA</option>
-                <option value="MCA">MCA</option>
+                <option value="B.Tech" className="bg-white text-slate-900">B.Tech</option>
+                <option value="M.Tech" className="bg-white text-slate-900">M.Tech</option>
+                <option value="BCA" className="bg-white text-slate-900">BCA</option>
+                <option value="MCA" className="bg-white text-slate-900">MCA</option>
               </select>
             </div>
 
             <div>
-              <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1">Year</label>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">Year</label>
               <select
                 value={formData.year}
                 onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-                className="w-full px-2.5 py-2.5 rounded-xl bg-[#121216] border border-white/15 text-white text-xs"
+                className="w-full px-2.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs font-medium"
               >
-                <option value={1}>1st Year</option>
-                <option value={2}>2nd Year</option>
-                <option value={3}>3rd Year</option>
-                <option value={4}>4th Year</option>
+                <option value={1} className="bg-white text-slate-900">1st Year</option>
+                <option value={2} className="bg-white text-slate-900">2nd Year</option>
+                <option value={3} className="bg-white text-slate-900">3rd Year</option>
+                <option value={4} className="bg-white text-slate-900">4th Year</option>
               </select>
             </div>
 
             <div>
-              <label className="block font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1">Semester</label>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1">Semester</label>
               <select
                 value={formData.semester}
                 onChange={(e) => setFormData({ ...formData, semester: parseInt(e.target.value) })}
-                className="w-full px-2.5 py-2.5 rounded-xl bg-[#121216] border border-white/15 text-white text-xs"
+                className="w-full px-2.5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs font-medium"
               >
-                {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Sem {s}</option>)}
+                {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s} className="bg-white text-slate-900">Sem {s}</option>)}
               </select>
             </div>
           </div>
@@ -319,15 +319,15 @@ const RegisterPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-4 py-3 rounded-xl honey-btn text-[#3C2F00] font-extrabold text-sm shadow-gold-glow flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full mt-4 py-3 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-extrabold text-sm shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 transition active:scale-95"
           >
             {loading ? 'Registering...' : 'Complete & Register Account'} <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        <div className="mt-6 text-center text-xs text-[#D0C5AF]">
+        <div className="mt-6 text-center text-xs text-slate-600 font-medium">
           Already have an account?{' '}
-          <Link to="/login" className="text-[#F2CA50] hover:underline font-bold">
+          <Link to="/login" className="text-[#7c3aed] hover:underline font-extrabold">
             Sign In
           </Link>
         </div>

@@ -18,6 +18,11 @@
   )
 )
 
+@IF NOT EXIST "%~dp0.mvn\wrapper\maven-wrapper.jar" (
+    echo Downloading Maven Wrapper Jar...
+    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.2.0/maven-wrapper-3.2.0.jar', '%~dp0.mvn\wrapper\maven-wrapper.jar')"
+)
+
 @IF EXIST "%~dp0.mvn\wrapper\maven-wrapper.jar" (
     %MAVEN_JAVA_EXE% "-Dmaven.multiModuleProjectDirectory=%MAVEN_PROJECTBASEDIR%" -classpath "%~dp0.mvn\wrapper\maven-wrapper.jar" org.apache.maven.wrapper.MavenWrapperMain %*
     @EXIT /B %ERRORLEVEL%

@@ -6,7 +6,7 @@ import ChartCard from '../../components/common/ChartCard';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Badge from '../../components/common/Badge';
 import PrintReportModal from '../../components/reports/PrintReportModal';
-import { Users, Calendar, CheckCircle2, Clock, Check, X, Printer, Activity, Sparkles, Info, CheckSquare, Square } from 'lucide-react';
+import { Users, Calendar, CheckCircle2, Clock, Check, X, Printer, Activity, Sparkles, Info, CheckSquare, Square, Building2 } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 
 const CoordinatorDashboard = () => {
@@ -29,25 +29,11 @@ const CoordinatorDashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      let dashData = null;
-      try {
-        const res = await api.get(`/dashboards/coordinator/user/${user.id}`);
-        dashData = res.data;
-      } catch (e) {
-        console.warn('Fallback fetching default coordinator community 1:', e);
-        const fallbackRes = await api.get('/dashboards/coordinator/1');
-        dashData = fallbackRes.data;
-      }
+      const res = await api.get(`/dashboards/coordinator/user/${user.id}`);
+      setData(res.data);
 
-      if (!dashData || !dashData.community) {
-        const fallbackRes = await api.get('/dashboards/coordinator/1');
-        dashData = fallbackRes.data;
-      }
-
-      setData(dashData);
-
-      if (dashData?.community?.id) {
-        fetchCommunityAnalytics(dashData.community.id);
+      if (res.data?.community?.id) {
+        fetchCommunityAnalytics(res.data.community.id);
       }
     } catch (err) {
       console.error('Error fetching coordinator dashboard:', err);
@@ -131,10 +117,25 @@ const CoordinatorDashboard = () => {
   };
 
   if (loading) return <LoadingSpinner label="Loading Community Coordinator Control Panel..." />;
-  if (!data || !data.community) return <div className="p-8 text-center text-[#D0C5AF]">Loading community operations dashboard...</div>;
+
+  if (!data || !data.community) {
+    return (
+      <div className="space-y-8 p-4 lg:p-8">
+        <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-12 rounded-3xl border border-dashed border-slate-200 text-center space-y-4 shadow-xl">
+          <Building2 className="w-16 h-16 text-[#7c3aed]/50 mx-auto" />
+          <div className="space-y-2">
+            <h2 className="text-[#7c3aed]xl font-extrabold text-slate-900">No Communities Assigned</h2>
+            <p className="text-xs md:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+              You currently have no assigned community. Please contact your Faculty Admin to be assigned as a Community Coordinator.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const COLORS = ['#34d399', '#f59e0b', '#f43f5e', '#38bdf8', '#a78bfa'];
-  const PARTICIPATION_COLORS = ['#F2CA50', '#475569'];
+  const PARTICIPATION_COLORS = ['#8b5cf6', '#475569'];
 
   const prepareChartData = (dataArray, fallbackLabel) => {
     if (!dataArray || dataArray.length === 0) {
@@ -154,22 +155,22 @@ const CoordinatorDashboard = () => {
   return (
     <div className="space-y-8 p-4 lg:p-8">
       {/* Apple Glass Banner */}
-      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
         <div>
-          <span className="text-xs font-bold text-[#F2CA50] uppercase tracking-widest flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-[#F2CA50]" /> Community Coordinator Operations
+          <span className="text-xs font-bold text-[#7c3aed] uppercase tracking-widest flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-[#7c3aed]" /> Community Coordinator Operations
           </span>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-1">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mt-1">
             {data.community.name}
           </h1>
-          <p className="text-xs md:text-sm text-[#D0C5AF] mt-1 font-medium">
+          <p className="text-xs md:text-sm text-slate-600 mt-1 font-medium">
             Category: {data.community.category} • Faculty Coordinator: {data.community.facultyCoordinator}
           </p>
         </div>
 
         <button
           onClick={handleOpenReport}
-          className="flex items-center gap-2 px-5 py-3 rounded-xl honey-btn text-xs font-bold shadow-gold-glow"
+          className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold transition shadow-sm text-xs font-bold shadow-sm"
         >
           <Printer className="w-4 h-4" /> Export Community Report
         </button>
@@ -184,23 +185,23 @@ const CoordinatorDashboard = () => {
       </div>
 
       {/* RESPECTIVE COMMUNITY ANALYTICS SECTION */}
-      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 space-y-6 shadow-2xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-200 space-y-6 shadow-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-4">
           <div>
-            <h3 className="text-2xl font-extrabold text-white flex items-center gap-2">
-              <Activity className="w-6 h-6 text-[#F2CA50]" /> {data.community.name} Analytics & Participation
+            <h3 className="text-[#7c3aed]xl font-extrabold text-slate-900 flex items-center gap-2">
+              <Activity className="w-6 h-6 text-[#7c3aed]" /> {data.community.name} Analytics & Participation
             </h3>
-            <p className="text-xs text-[#D0C5AF] mt-0.5">
+            <p className="text-xs text-slate-600 mt-0.5">
               Real-time analytics for deliverable verifications, active member participation rates, and task categories.
             </p>
           </div>
-          <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-[#F2CA50]/20 text-[#F2CA50] border border-[#F2CA50]/30">
+          <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-purple-100 text-[#7c3aed] text-[#7c3aed] border border-[#8b5cf6]/30">
             Live Database Data
           </span>
         </div>
 
         {loadingAnalytics ? (
-          <div className="p-8 text-center text-xs text-[#D0C5AF]">
+          <div className="p-8 text-center text-xs text-slate-600">
             <LoadingSpinner label="Calculating community analytics..." />
           </div>
         ) : analytics ? (
@@ -210,8 +211,8 @@ const CoordinatorDashboard = () => {
               {/* CHART 1: Task Deliverables & Verification Breakdown (PieChart) */}
               <ChartCard title="Task Proof Verifications" subtitle="Verified vs Pending vs Rejected">
                 {taskStatusData[0]?.isFallback ? (
-                  <div className="flex flex-col items-center justify-center p-6 text-center text-xs text-[#D0C5AF]/60 space-y-2">
-                    <Info className="w-8 h-8 text-[#F2CA50]/40" />
+                  <div className="flex flex-col items-center justify-center p-6 text-center text-xs text-slate-600/60 space-y-2">
+                    <Info className="w-8 h-8 text-[#7c3aed]/40" />
                     <div>No task proof submissions logged yet.</div>
                   </div>
                 ) : (
@@ -232,9 +233,9 @@ const CoordinatorDashboard = () => {
                         ))}
                       </Pie>
                       <Tooltip
-                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#F2CA50', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}
+                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#8b5cf6', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}
                         itemStyle={{ color: '#ffffff', fontWeight: 'bold', fontSize: '12px' }}
-                        labelStyle={{ color: '#F2CA50', fontWeight: 'bold', fontSize: '12px' }}
+                        labelStyle={{ color: '#8b5cf6', fontWeight: 'bold', fontSize: '12px' }}
                       />
                       <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '11px', color: '#e2e2e8' }} />
                     </PieChart>
@@ -245,8 +246,8 @@ const CoordinatorDashboard = () => {
               {/* CHART 2: Active Member Participation Rate (PieChart) */}
               <ChartCard title="Active Member Participation" subtitle="Active vs Inactive Members">
                 {participationRateData[0]?.isFallback ? (
-                  <div className="flex flex-col items-center justify-center p-6 text-center text-xs text-[#D0C5AF]/60 space-y-2">
-                    <Info className="w-8 h-8 text-[#F2CA50]/40" />
+                  <div className="flex flex-col items-center justify-center p-6 text-center text-xs text-slate-600/60 space-y-2">
+                    <Info className="w-8 h-8 text-[#7c3aed]/40" />
                     <div>No member activity recorded yet.</div>
                   </div>
                 ) : (
@@ -268,9 +269,9 @@ const CoordinatorDashboard = () => {
                         ))}
                       </Pie>
                       <Tooltip
-                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#F2CA50', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}
+                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#8b5cf6', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}
                         itemStyle={{ color: '#ffffff', fontWeight: 'bold', fontSize: '12px' }}
-                        labelStyle={{ color: '#F2CA50', fontWeight: 'bold', fontSize: '12px' }}
+                        labelStyle={{ color: '#8b5cf6', fontWeight: 'bold', fontSize: '12px' }}
                       />
                       <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '11px', color: '#e2e2e8' }} />
                     </PieChart>
@@ -281,8 +282,8 @@ const CoordinatorDashboard = () => {
               {/* CHART 3: Task Type Overview (BarChart) */}
               <ChartCard title="Task Categories Overview" subtitle="Faculty Tasks vs Daily Tasks">
                 {taskTypeData[0]?.isFallback ? (
-                  <div className="flex flex-col items-center justify-center p-6 text-center text-xs text-[#D0C5AF]/60 space-y-2">
-                    <Info className="w-8 h-8 text-[#F2CA50]/40" />
+                  <div className="flex flex-col items-center justify-center p-6 text-center text-xs text-slate-600/60 space-y-2">
+                    <Info className="w-8 h-8 text-[#7c3aed]/40" />
                     <div>No tasks created yet.</div>
                   </div>
                 ) : (
@@ -292,11 +293,11 @@ const CoordinatorDashboard = () => {
                       <XAxis dataKey="name" stroke="#efdecd" fontSize={10} />
                       <YAxis stroke="#efdecd" fontSize={10} />
                       <Tooltip
-                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#F2CA50', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}
+                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#8b5cf6', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}
                         itemStyle={{ color: '#ffffff', fontWeight: 'bold', fontSize: '12px' }}
-                        labelStyle={{ color: '#F2CA50', fontWeight: 'bold', fontSize: '12px' }}
+                        labelStyle={{ color: '#8b5cf6', fontWeight: 'bold', fontSize: '12px' }}
                       />
-                      <Bar dataKey="value" fill="#F2CA50" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="value" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -305,20 +306,20 @@ const CoordinatorDashboard = () => {
 
             {/* Quick Stat Summary Strip */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-              <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-                <div className="text-[10px] text-[#D0C5AF]/60 uppercase font-mono">Assigned Tasks</div>
-                <div className="text-xl font-bold text-white mt-0.5">{analytics.totalTasksAssigned}</div>
+              <div className="p-3 rounded-2xl bg-white/5 border border-slate-200">
+                <div className="text-[10px] text-slate-600/60 uppercase font-mono">Assigned Tasks</div>
+                <div className="text-xl font-bold text-slate-900 mt-0.5">{analytics.totalTasksAssigned}</div>
               </div>
-              <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-                <div className="text-[10px] text-[#D0C5AF]/60 uppercase font-mono">Total Submissions</div>
-                <div className="text-xl font-bold text-[#F2CA50] mt-0.5">{analytics.totalSubmissions}</div>
+              <div className="p-3 rounded-2xl bg-white/5 border border-slate-200">
+                <div className="text-[10px] text-slate-600/60 uppercase font-mono">Total Submissions</div>
+                <div className="text-xl font-bold text-[#7c3aed] mt-0.5">{analytics.totalSubmissions}</div>
               </div>
-              <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-                <div className="text-[10px] text-[#D0C5AF]/60 uppercase font-mono">Verified (+Pts)</div>
+              <div className="p-3 rounded-2xl bg-white/5 border border-slate-200">
+                <div className="text-[10px] text-slate-600/60 uppercase font-mono">Verified (+Pts)</div>
                 <div className="text-xl font-bold text-emerald-400 mt-0.5">{analytics.verifiedSubmissions}</div>
               </div>
-              <div className="p-3 rounded-2xl bg-white/5 border border-white/10">
-                <div className="text-[10px] text-[#D0C5AF]/60 uppercase font-mono">Event Registrations</div>
+              <div className="p-3 rounded-2xl bg-white/5 border border-slate-200">
+                <div className="text-[10px] text-slate-600/60 uppercase font-mono">Event Registrations</div>
                 <div className="text-xl font-bold text-purple-300 mt-0.5">{analytics.totalEventRegistrations}</div>
               </div>
             </div>
@@ -327,9 +328,9 @@ const CoordinatorDashboard = () => {
       </div>
 
       {/* Pending Membership Requests Table with Batch Approval */}
-      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 space-y-4 shadow-2xl">
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-200 space-y-4 shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h3 className="text-xl font-bold text-white">
+          <h3 className="text-xl font-bold text-slate-900">
             Pending Membership Requests ({data.pendingRequests?.length || 0})
           </h3>
 
@@ -337,15 +338,15 @@ const CoordinatorDashboard = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={toggleSelectAll}
-                className="px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 text-xs font-bold flex items-center gap-1.5 transition"
+                className="px-3 py-1.5 rounded-lg bg-white/10 text-slate-900 hover:bg-white/20 text-xs font-bold flex items-center gap-1.5 transition"
               >
                 {selectedRequestIds.length === data.pendingRequests.length ? (
                   <>
-                    <CheckSquare className="w-4 h-4 text-[#F2CA50]" /> Deselect All
+                    <CheckSquare className="w-4 h-4 text-[#7c3aed]" /> Deselect All
                   </>
                 ) : (
                   <>
-                    <Square className="w-4 h-4 text-white/60" /> Select All ({selectedRequestIds.length})
+                    <Square className="w-4 h-4 text-slate-600" /> Select All ({selectedRequestIds.length})
                   </>
                 )}
               </button>
@@ -354,7 +355,7 @@ const CoordinatorDashboard = () => {
                 <button
                   onClick={handleBatchApprove}
                   disabled={batchActionLoading}
-                  className="px-4 py-1.5 rounded-lg honey-btn text-xs font-bold flex items-center gap-1.5 shadow-md disabled:opacity-50"
+                  className="px-4 py-1.5 rounded-lg bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold transition shadow-sm text-xs font-bold flex items-center gap-1.5 shadow-md disabled:opacity-50"
                 >
                   <Check className="w-4 h-4" />
                   {batchActionLoading ? 'Approving...' : `Batch Approve Selected (${selectedRequestIds.length})`}
@@ -365,15 +366,15 @@ const CoordinatorDashboard = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-[#E2E2E8]">
-            <thead className="bg-white/5 text-[#F2CA50] font-mono border-b border-white/10">
+          <table className="w-full text-left text-xs text-slate-800">
+            <thead className="bg-white/5 text-[#7c3aed] font-mono border-b border-slate-200">
               <tr>
                 <th className="p-3 w-10 text-center">
                   <input
                     type="checkbox"
                     checked={data.pendingRequests?.length > 0 && selectedRequestIds.length === data.pendingRequests.length}
                     onChange={toggleSelectAll}
-                    className="accent-[#F2CA50] rounded cursor-pointer"
+                    className="accent-[#8b5cf6] rounded cursor-pointer"
                   />
                 </th>
                 <th className="p-3">Student Name</th>
@@ -389,17 +390,17 @@ const CoordinatorDashboard = () => {
                 data.pendingRequests.map((req) => {
                   const isSelected = selectedRequestIds.includes(req.id);
                   return (
-                    <tr key={req.id} className={`hover:bg-white/5 transition ${isSelected ? 'bg-[#F2CA50]/10' : ''}`}>
+                    <tr key={req.id} className={`hover:bg-white/5 transition ${isSelected ? 'bg-[#8b5cf6] text-white/10' : ''}`}>
                       <td className="p-3 text-center">
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleSelectRequest(req.id)}
-                          className="accent-[#F2CA50] rounded cursor-pointer"
+                          className="accent-[#8b5cf6] rounded cursor-pointer"
                         />
                       </td>
-                      <td className="p-3 font-bold text-white">{req.studentName}</td>
-                      <td className="p-3 font-mono text-[#F2CA50]">{req.studentCode}</td>
+                      <td className="p-3 font-bold text-slate-900">{req.studentName}</td>
+                      <td className="p-3 font-mono text-[#7c3aed]">{req.studentCode}</td>
                       <td className="p-3">{req.department}</td>
                       <td className="p-3"><Badge status={req.role}>{req.role}</Badge></td>
                       <td className="p-3 font-mono">{req.joinedDate}</td>
@@ -422,7 +423,7 @@ const CoordinatorDashboard = () => {
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-[#D0C5AF]/50">No pending membership requests.</td>
+                  <td colSpan={7} className="p-6 text-center text-slate-600/50">No pending membership requests.</td>
                 </tr>
               )}
             </tbody>

@@ -61,13 +61,47 @@ const CoordinatorSearchPage = () => {
     setEditModal(true);
   };
 
+  const handleRemoveCommunityAssignment = async () => {
+    if (!selectedUser) return;
+    const confirmRemove = window.confirm(
+      `Are you sure you want to remove ${extractOnlyName(selectedUser)} from all community coordinator assignments?`
+    );
+    if (!confirmRemove) return;
+
+    setSubmitting(true);
+    setSuccessMsg('');
+    try {
+      // 1. Call reassign-community endpoint with empty newCommunityId
+      await api.put(`/users/${selectedUser.id}/reassign-community`).catch(() => {});
+
+      // 2. Call remove-coordinator endpoint for any community assigned to this user
+      const assignedComms = communities.filter(c => c.coordinatorUserId === selectedUser.id);
+      for (const oldC of assignedComms) {
+        await api.put(`/communities/${oldC.id}/remove-coordinator`).catch(() => {});
+      }
+
+      setSuccessMsg(`Successfully removed coordinator assignment for ${extractOnlyName(selectedUser)}!`);
+      await fetchData();
+      setTimeout(() => {
+        setEditModal(false);
+        setSuccessMsg('');
+      }, 1500);
+    } catch (err) {
+      console.error('Error removing coordinator assignment:', err);
+      alert('Failed to remove coordinator assignment.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleReassignCommunity = async (e) => {
     e.preventDefault();
     if (!selectedUser) return;
     setSubmitting(true);
     setSuccessMsg('');
     try {
-      const commIdParam = assignCommunityId ? `?newCommunityId=${assignCommunityId}` : '';
+      const cleanCommId = (assignCommunityId || '').trim();
+      const commIdParam = cleanCommId !== '' ? `?newCommunityId=${cleanCommId}` : '';
       
       try {
         await api.put(`/users/${selectedUser.id}/reassign-community${commIdParam}`);
@@ -112,15 +146,15 @@ const CoordinatorSearchPage = () => {
   return (
     <div className="space-y-8 p-4 lg:p-8">
       {/* Header Banner */}
-      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xl">
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xl">
         <div>
-          <span className="text-xs font-bold text-[#F2CA50] uppercase tracking-widest flex items-center gap-1.5">
-            <ShieldCheck className="w-4 h-4 text-[#F2CA50]" /> Faculty Governance & Staff Directory
+          <span className="text-xs font-bold text-[#7c3aed] uppercase tracking-widest flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-[#7c3aed]" /> Faculty Governance & Staff Directory
           </span>
-          <h1 className="text-3xl font-extrabold text-white mt-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 mt-1">
             Coordinator Search & Reassignment
           </h1>
-          <p className="text-xs text-[#D0C5AF] mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Reassigning a coordinator to a new community automatically clears all previous community ties for a clean slate.
           </p>
         </div>
@@ -128,13 +162,13 @@ const CoordinatorSearchPage = () => {
         <div className="flex flex-col sm:flex-row items-center gap-3">
           {/* Search Input */}
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 text-[#D0C5AF]/40 absolute left-3 top-3" />
+            <Search className="w-4 h-4 text-slate-600/40 absolute left-3 top-3" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by email or role..."
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/30 text-xs focus:outline-none focus:border-[#F2CA50] font-mono"
+              className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-slate-200 text-slate-900 placeholder-slate-400 text-xs focus:outline-none focus:border-[#8b5cf6] font-mono"
             />
           </div>
 
@@ -142,11 +176,11 @@ const CoordinatorSearchPage = () => {
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
-            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
+            className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white/5 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-[#8b5cf6]"
           >
-            <option value="ALL" className="bg-black text-white">All Roles</option>
-            <option value="ROLE_COMMUNITY_COORDINATOR" className="bg-black text-white">Community Coordinators</option>
-            <option value="ROLE_FACULTY" className="bg-black text-white">Faculty Leads</option>
+            <option value="ALL" className="bg-white text-slate-900">All Roles</option>
+            <option value="ROLE_COMMUNITY_COORDINATOR" className="bg-white text-slate-900">Community Coordinators</option>
+            <option value="ROLE_FACULTY" className="bg-white text-slate-900">Faculty Leads</option>
           </select>
         </div>
       </div>
@@ -160,46 +194,46 @@ const CoordinatorSearchPage = () => {
           return (
             <div
               key={u.id}
-              className="glass-card-apple p-6 rounded-2xl border border-white/15 flex flex-col justify-between space-y-4 hover:border-[#F2CA50]/40 transition shadow-xl"
+              className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 rounded-2xl border border-slate-200 flex flex-col justify-between space-y-4 hover:border-[#8b5cf6]/40 transition shadow-xl"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-[#F2CA50]/20 border border-[#F2CA50]/30 flex items-center justify-center text-[#F2CA50] font-bold text-sm">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#7c3aed] border border-[#8b5cf6]/30 flex items-center justify-center text-[#7c3aed] font-bold text-sm">
                     {cleanName[0].toUpperCase()}
                   </div>
                   <Badge status={u.status}>{u.status}</Badge>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-white truncate">{cleanName}</h3>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F2CA50]/15 text-[#F2CA50] border border-[#F2CA50]/30 mt-1 inline-block">
+                  <h3 className="text-lg font-bold text-slate-900 truncate">{cleanName}</h3>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7c3aed] text-[#7c3aed] border border-[#8b5cf6]/30 mt-1 inline-block">
                     {u.role.replace('ROLE_', '').replace('_', ' ')}
                   </span>
                 </div>
 
-                <div className="space-y-2 pt-3 border-t border-white/10 text-xs text-[#D0C5AF]/80">
+                <div className="space-y-2 pt-3 border-t border-slate-200 text-xs text-slate-600">
                   <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-[#F2CA50] shrink-0" />
+                    <Building2 className="w-4 h-4 text-[#7c3aed] shrink-0" />
                     <span>
                       <strong>Assigned Community:</strong>{' '}
                       {assignedComm ? (
-                        <span className="text-white font-bold">{assignedComm.name}</span>
+                        <span className="text-slate-900 font-bold">{assignedComm.name}</span>
                       ) : (
-                        <span className="text-[#D0C5AF]/50 italic">None (Unassigned)</span>
+                        <span className="text-slate-600/50 italic">None (Unassigned)</span>
                       )}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-[#D0C5AF] shrink-0" />
+                    <Mail className="w-4 h-4 text-slate-600 shrink-0" />
                     <span className="font-mono text-[11px] truncate">{u.email}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10">
+              <div className="pt-4 border-t border-slate-200">
                 <button
                   onClick={() => handleOpenEditModal(u)}
-                  className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/15 text-[#F2CA50] text-xs font-bold flex items-center justify-center gap-1.5 transition"
+                  className="w-full py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-slate-200 text-[#7c3aed] text-xs font-bold flex items-center justify-center gap-1.5 transition"
                 >
                   <UserCheck className="w-4 h-4" /> Manage Coordinator Assignment
                 </button>
@@ -216,8 +250,8 @@ const CoordinatorSearchPage = () => {
         title={selectedUser ? `Manage Assignment - ${extractOnlyName(selectedUser)}` : 'Manage Coordinator'}
       >
         <form onSubmit={handleReassignCommunity} className="space-y-4 text-xs">
-          <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-[#F2CA50] flex items-center gap-2">
-            <RefreshCw className="w-4 h-4 shrink-0 text-[#F2CA50]" />
+          <div className="p-3 rounded-xl bg-white/5 border border-slate-200 text-xs text-[#7c3aed] flex items-center gap-2">
+            <RefreshCw className="w-4 h-4 shrink-0 text-[#7c3aed]" />
             Reassigning a coordinator to a new community automatically clears all previous community ties for a clean slate.
           </div>
 
@@ -228,47 +262,60 @@ const CoordinatorSearchPage = () => {
           )}
 
           <div>
-            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Coordinator Email</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Coordinator Email</label>
             <input
               type="text"
               disabled
               value={selectedUser?.email || ''}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-[#D0C5AF] text-xs font-mono"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-slate-200 text-slate-600 text-xs font-mono"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-[#D0C5AF] mb-1">Select New Assigned Community</label>
+            <label className="block text-xs font-bold text-slate-600 mb-1">Select New Assigned Community</label>
             <select
               value={assignCommunityId}
               onChange={(e) => setAssignCommunityId(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white text-xs focus:outline-none focus:border-[#F2CA50]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:border-[#8b5cf6]"
             >
-              <option value="" className="bg-black text-white">-- No Assigned Community (Unassigned Clean Slate) --</option>
+              <option value="" className="bg-white text-slate-900">-- No Assigned Community (Unassigned Clean Slate) --</option>
               {communities.map((c) => (
-                <option key={c.id} value={c.id} className="bg-black text-white">
+                <option key={c.id} value={c.id} className="bg-white text-slate-900">
                   {c.name} ({c.category})
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="pt-4 flex justify-end gap-3 border-t border-white/10">
-            <button
-              type="button"
-              onClick={() => setEditModal(false)}
-              className="px-4 py-2 rounded-xl text-[#D0C5AF] hover:text-white text-xs font-bold"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-5 py-2 rounded-xl honey-btn text-black font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
-            >
-              <UserCheck className="w-4 h-4 text-black" />
-              {submitting ? 'Updating...' : 'Save & Clean Reassign'}
-            </button>
+          <div className="pt-4 flex items-center justify-between gap-3 border-t border-slate-200">
+            {communities.some(c => c.coordinatorUserId === selectedUser?.id) ? (
+              <button
+                type="button"
+                onClick={handleRemoveCommunityAssignment}
+                disabled={submitting}
+                className="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-50"
+              >
+                🗑️ Remove Community Assignment
+              </button>
+            ) : <div />}
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setEditModal(false)}
+                className="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 text-xs font-bold"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="px-5 py-2 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold transition shadow-sm text-black font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <UserCheck className="w-4 h-4 text-black" />
+                {submitting ? 'Updating...' : 'Save & Clean Reassign'}
+              </button>
+            </div>
           </div>
         </form>
       </Modal>

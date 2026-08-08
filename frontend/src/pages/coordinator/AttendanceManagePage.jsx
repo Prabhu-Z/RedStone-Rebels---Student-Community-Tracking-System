@@ -1,26 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Badge from '../../components/common/Badge';
-import { CheckSquare, Check, X } from 'lucide-react';
+import { CheckSquare, Check, X, Building2 } from 'lucide-react';
 
 const AttendanceManagePage = () => {
+  const { user } = useAuth();
+  const [community, setCommunity] = useState(null);
   const [events, setEvents] = useState([]);
   const [selectedEventId, setSelectedEventId] = useState('');
   const [attendanceList, setAttendanceList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchEvents();
-  }, []);
+    fetchCommunityAndEvents();
+  }, [user]);
 
-  const fetchEvents = async () => {
+  const fetchCommunityAndEvents = async () => {
     try {
-      const res = await api.get('/events');
-      setEvents(res.data);
-      if (res.data.length > 0) {
-        setSelectedEventId(res.data[0].id);
-        fetchAttendance(res.data[0].id);
+      const commRes = await api.get('/communities');
+      let myCommunity = null;
+
+      if (commRes.data && commRes.data.length > 0) {
+        myCommunity =
+          commRes.data.find(
+            (c) =>
+              c.coordinatorUserId === user?.id ||
+              (user?.email &&
+                (c.studentCoordinator?.toLowerCase().includes(user.email.toLowerCase()) ||
+                  c.facultyCoordinator?.toLowerCase().includes(user.email.toLowerCase())))
+          ) || null;
+      }
+
+      setCommunity(myCommunity);
+
+      if (myCommunity?.id) {
+        const res = await api.get('/events');
+        const commEvents = (res.data || []).filter(e => e.communityId === myCommunity.id);
+        setEvents(commEvents);
+        if (commEvents.length > 0) {
+          setSelectedEventId(commEvents[0].id);
+          fetchAttendance(commEvents[0].id);
+        }
       }
     } catch (err) {
       console.error('Error fetching events:', err);
@@ -50,12 +72,28 @@ const AttendanceManagePage = () => {
 
   if (loading) return <LoadingSpinner label="Loading attendance management portal..." />;
 
+  if (!community || !community.id) {
+    return (
+      <div className="space-y-8 p-4 lg:p-8">
+        <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-12 rounded-3xl border border-dashed border-slate-200 text-center space-y-4 shadow-xl">
+          <Building2 className="w-16 h-16 text-[#7c3aed]/50 mx-auto" />
+          <div className="space-y-2">
+            <h2 className="text-[#7c3aed]xl font-extrabold text-slate-900">No Communities Assigned</h2>
+            <p className="text-xs md:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+              You currently have no assigned community. Please contact your Faculty Admin to be assigned as a Community Coordinator.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 p-4 lg:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-extrabold text-white">Event Attendance Recording</h1>
-          <p className="text-xs text-stardustsilver-300/70 mt-1">Mark student participants PRESENT or ABSENT for official records.</p>
+          <h1 className="font-sans text-3xl font-extrabold text-slate-900">Event Attendance Recording</h1>
+          <p className="text-xs text-slate-600 mt-1">Mark student participants PRESENT or ABSENT for official records.</p>
         </div>
 
         <select
@@ -64,20 +102,20 @@ const AttendanceManagePage = () => {
             setSelectedEventId(e.target.value);
             fetchAttendance(e.target.value);
           }}
-          className="px-4 py-2.5 rounded-xl bg-arsenic-900 border border-warmgold-500/30 text-white font-serif text-xs"
+          className="px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 font-sans text-xs"
         >
           {events.map((e) => (
-            <option key={e.id} value={e.id}>
+            <option key={e.id} value={e.id} className="bg-white text-slate-900">
               {e.title} ({e.eventDate})
             </option>
           ))}
         </select>
       </div>
 
-      <div className="glass-panel p-6 lg:p-8 rounded-3xl border border-stardustsilver-300/15">
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-100">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-almond-200">
-            <thead className="bg-arsenic-900 text-warmgold-400 font-serif border-b border-stardustsilver-300/15">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-white text-[#7c3aed] font-sans border-b border-slate-100">
               <tr>
                 <th className="p-3">Student Name</th>
                 <th className="p-3">Register Code</th>
@@ -89,10 +127,10 @@ const AttendanceManagePage = () => {
             <tbody className="divide-y divide-almond-300/5">
               {attendanceList && attendanceList.length > 0 ? (
                 attendanceList.map((att) => (
-                  <tr key={att.id} className="hover:bg-arsenic-800/40">
-                    <td className="p-3 font-serif font-bold text-white">{att.studentName}</td>
+                  <tr key={att.id} className="hover:bg-slate-100/40">
+                    <td className="p-3 font-sans font-bold text-slate-900">{att.studentName}</td>
                     <td className="p-3 font-mono">{att.studentCode}</td>
-                    <td className="p-3 font-mono text-stardustsilver-300/60">{att.recordedTime ? new Date(att.recordedTime).toLocaleString() : 'N/A'}</td>
+                    <td className="p-3 font-mono text-slate-500">{att.recordedTime ? new Date(att.recordedTime).toLocaleString() : 'N/A'}</td>
                     <td className="p-3"><Badge status={att.status}>{att.status}</Badge></td>
                     <td className="p-3 text-right">
                       <button
@@ -111,7 +149,7 @@ const AttendanceManagePage = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-stardustsilver-300/50">No registered students found for selected event.</td>
+                  <td colSpan={5} className="p-8 text-center text-slate-500">No registered students found for selected event.</td>
                 </tr>
               )}
             </tbody>

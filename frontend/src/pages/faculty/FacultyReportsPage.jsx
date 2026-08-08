@@ -40,22 +40,22 @@ const FacultyReportsPage = () => {
   return (
     <div className="space-y-8 p-4 lg:p-8">
       <div>
-        <h1 className="font-serif text-3xl font-extrabold text-white">College Official Reports Suite</h1>
-        <p className="text-xs text-stardustsilver-300/70 mt-1">Export official student activity transcripts and community performance summaries.</p>
+        <h1 className="font-sans text-3xl font-extrabold text-slate-900">College Official Reports Suite</h1>
+        <p className="text-xs text-slate-600 mt-1">Export official student activity transcripts and community performance summaries.</p>
       </div>
 
-      <div className="glass-panel p-6 lg:p-8 rounded-3xl border border-stardustsilver-300/15">
-        <h3 className="font-serif text-xl font-bold text-white mb-4">Select Student for Official Portfolio Transcript</h3>
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-100">
+        <h3 className="font-sans text-xl font-bold text-slate-900 mb-4">Select Student for Official Portfolio Transcript</h3>
         <div className="space-y-3">
           {students.map((s) => (
-            <div key={s.id} className="glass-card p-4 rounded-xl border border-stardustsilver-300/15 flex items-center justify-between">
+            <div key={s.id} className="bg-white border border-slate-200 shadow-sm rounded-2xl p-4 rounded-xl border border-slate-100 flex items-center justify-between">
               <div>
-                <span className="font-serif font-bold text-white text-base">{s.name}</span>
-                <p className="text-xs text-stardustsilver-300/60 font-mono">Code: {s.studentCode} • {s.department}</p>
+                <span className="font-sans font-bold text-slate-900 text-base">{s.name}</span>
+                <p className="text-xs text-slate-500 font-mono">Code: {s.studentCode} • {s.department}</p>
               </div>
               <button
                 onClick={() => handleGenerateStudentReport(s.id)}
-                className="px-4 py-2 rounded-xl bg-warmgold-500 text-arsenic-950 font-bold text-xs hover:bg-warmgold-400 transition flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-purple-600 text-arsenic-950 font-bold text-xs hover:bg-purple-600 transition flex items-center gap-1.5"
               >
                 <Printer className="w-4 h-4" /> Print Portfolio Transcript
               </button>

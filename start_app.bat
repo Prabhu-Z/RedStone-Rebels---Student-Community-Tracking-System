@@ -16,8 +16,7 @@ start "SCTS Frontend UI (Port 5173)" cmd /k "cd /d "%~dp0frontend" && (if not ex
 
 echo.
 echo ===============================================================
-echo   SUCCESS! Backend & Frontend servers are launching.
+echo   SUCCESS! Backend and Frontend servers are launching.
 echo   Opening web browser: http://localhost:5173
 echo ===============================================================
-timeout /t 5
 start http://localhost:5173

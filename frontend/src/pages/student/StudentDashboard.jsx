@@ -12,9 +12,9 @@ import { Users, Calendar, CheckCircle2, Award, Printer, ShieldCheck, FileDown } 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
 
 const getTierDetails = (points = 0) => {
-  if (points >= 100) return { title: '👑 Extracurricular Legend', color: 'border-amber-400 text-amber-400 bg-amber-400/10' };
+  if (points >= 100) return { title: '👑 Extracurricular Legend', color: 'border-purple-600 text-[#7c3aed] bg-purple-600/10' };
   if (points >= 61) return { title: '💎 Platinum Leader', color: 'border-cyan-400 text-cyan-400 bg-cyan-400/10' };
-  if (points >= 36) return { title: '🥇 Gold Achiever', color: 'border-[#F2CA50] text-[#F2CA50] bg-[#F2CA50]/10' };
+  if (points >= 36) return { title: '🥇 Gold Achiever', color: 'border-[#8b5cf6] text-[#7c3aed] bg-[#8b5cf6] text-white/10' };
   if (points >= 16) return { title: '🥈 Silver Trailblazer', color: 'border-slate-300 text-slate-300 bg-slate-400/10' };
   return { title: '🥉 Bronze Contributor', color: 'border-amber-700 text-amber-600 bg-amber-800/10' };
 };
@@ -54,7 +54,7 @@ const StudentDashboard = () => {
   };
 
   if (loading) return <LoadingSpinner label="Compiling Apple frosted glass profile..." />;
-  if (!data) return <div className="p-8 text-center text-[#D0C5AF]">Failed to load dashboard data.</div>;
+  if (!data) return <div className="p-8 text-center text-slate-600">Failed to load dashboard data.</div>;
 
   const totalPoints = (data.eventsAttendedCount * 1) + (data.achievementsCount * 5);
   const tier = getTierDetails(totalPoints);
@@ -62,20 +62,20 @@ const StudentDashboard = () => {
   return (
     <div className="space-y-8">
       {/* Header Banner with Apple Glassmorphism */}
-      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-xs font-bold text-[#F2CA50] uppercase tracking-widest flex items-center gap-1.5">
+            <span className="text-xs font-bold text-[#7c3aed] uppercase tracking-widest flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4" /> Student Extracurricular Hub
             </span>
             <span className={`px-3 py-0.5 rounded-full text-[11px] font-extrabold border ${tier.color}`}>
               {tier.title}
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-1">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mt-1">
             Welcome back, {data.student.name}!
           </h1>
-          <p className="text-xs md:text-sm text-[#D0C5AF] font-medium">
+          <p className="text-xs md:text-sm text-slate-600 font-medium">
             {data.student.department} • {data.student.degree} (Year {data.student.year}, Sem {data.student.semester}) • Register #{data.student.studentCode}
           </p>
         </div>
@@ -83,13 +83,13 @@ const StudentDashboard = () => {
         <div className="flex flex-wrap gap-3">
           <button
             onClick={() => setPortfolioModal(true)}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl honey-btn text-xs font-extrabold shadow-gold-glow"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold transition shadow-sm text-xs font-extrabold shadow-sm"
           >
             <FileDown className="w-4 h-4" /> Export Verified Portfolio PDF
           </button>
           <button
             onClick={handleOpenReport}
-            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition border border-white/15"
+            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-slate-900 text-xs font-bold transition border border-slate-200"
           >
             <Printer className="w-4 h-4" /> Detailed Report
           </button>
@@ -143,10 +143,10 @@ const StudentDashboard = () => {
                 paddingAngle={5}
                 dataKey="value"
               >
-                <Cell fill="#F2CA50" />
-                <Cell fill="#D0C5AF" />
+                <Cell fill="#8b5cf6" />
+                <Cell fill="#64748b" />
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: '#000000', borderRadius: '12px', border: '1px solid #F2CA50', color: '#E2E2E8' }} />
+              <Tooltip contentStyle={{ backgroundColor: '#000000', borderRadius: '12px', border: '1px solid #8b5cf6', color: '#E2E2E8' }} />
             </PieChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -157,43 +157,43 @@ const StudentDashboard = () => {
             <BarChart data={data.communityCategoryData}>
               <XAxis dataKey="category" stroke="#E2E2E8" fontSize={10} tickLine={false} />
               <YAxis stroke="#E2E2E8" fontSize={10} tickLine={false} />
-              <Tooltip contentStyle={{ backgroundColor: '#000000', borderRadius: '12px', border: '1px solid #F2CA50', color: '#E2E2E8' }} />
-              <Bar dataKey="count" fill="#F2CA50" radius={[6, 6, 0, 0]} />
+              <Tooltip contentStyle={{ backgroundColor: '#000000', borderRadius: '12px', border: '1px solid #8b5cf6', color: '#E2E2E8' }} />
+              <Bar dataKey="count" fill="#8b5cf6" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
 
         {/* Upcoming Events Box with Apple Glass Styling */}
-        <div className="glass-card-apple p-6 rounded-2xl border border-white/15 flex flex-col justify-between shadow-xl">
+        <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 rounded-2xl border border-slate-200 flex flex-col justify-between shadow-xl">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-extrabold text-[#E2E2E8]">Upcoming Events</h3>
-            <span className="text-xs font-mono text-[#D0C5AF]">{data.upcomingEventsCount} Scheduled</span>
+            <h3 className="text-lg font-extrabold text-slate-800">Upcoming Events</h3>
+            <span className="text-xs font-mono text-slate-600">{data.upcomingEventsCount} Scheduled</span>
           </div>
 
           <div className="space-y-3 overflow-y-auto max-h-56 pr-1">
             {data.upcomingEvents && data.upcomingEvents.length > 0 ? (
               data.upcomingEvents.map((evt) => (
-                <div key={evt.id} className="p-3 rounded-xl bg-white/5 border border-white/10 hover:border-[#F2CA50]/40 transition text-xs">
+                <div key={evt.id} className="p-3 rounded-xl bg-white/5 border border-slate-200 hover:border-[#8b5cf6]/40 transition text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-white">{evt.title}</span>
+                    <span className="font-bold text-slate-900">{evt.title}</span>
                     <Badge status={evt.status}>{evt.status}</Badge>
                   </div>
-                  <div className="text-[#D0C5AF] mt-1 flex items-center justify-between text-[11px]">
+                  <div className="text-slate-600 mt-1 flex items-center justify-between text-[11px]">
                     <span>{evt.communityName}</span>
-                    <span className="font-mono text-[#F2CA50] font-bold">{evt.eventDate}</span>
+                    <span className="font-mono text-[#7c3aed] font-bold">{evt.eventDate}</span>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-xs text-[#D0C5AF]/50 text-center py-6">No upcoming registered events.</p>
+              <p className="text-xs text-slate-600/50 text-center py-6">No upcoming registered events.</p>
             )}
           </div>
         </div>
       </div>
 
       {/* Activity Timeline Section */}
-      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 shadow-2xl">
-        <h3 className="text-2xl font-extrabold text-white mb-6">Recent Activity Timeline</h3>
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-200 shadow-2xl">
+        <h3 className="text-[#7c3aed]xl font-extrabold text-slate-900 mb-6">Recent Activity Timeline</h3>
         <Timeline activities={data.recentActivities} />
       </div>
 

@@ -50,7 +50,7 @@ public class UserController {
     @PutMapping("/{userId}/reassign-community")
     public ResponseEntity<?> reassignCoordinatorCommunity(
             @PathVariable Long userId,
-            @RequestParam(required = false) Long newCommunityId) {
+            @RequestParam(required = false) String newCommunityId) {
 
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
@@ -58,18 +58,29 @@ public class UserController {
         }
         User user = optionalUser.get();
 
+        Long parsedCommunityId = null;
+        if (newCommunityId != null && !newCommunityId.trim().isEmpty() && !"null".equalsIgnoreCase(newCommunityId.trim())) {
+            try {
+                parsedCommunityId = Long.valueOf(newCommunityId.trim());
+            } catch (NumberFormatException e) {
+                parsedCommunityId = null;
+            }
+        }
+
         // 1. Clean Slate: Unassign user from all previous communities
         List<Community> existingCommunities = communityRepository.findAll();
         for (Community c : existingCommunities) {
             if (user.getId().equals(c.getCoordinatorUserId())) {
                 c.setCoordinatorUserId(null);
+                c.setFacultyCoordinator("Unassigned");
+                c.setStudentCoordinator("Unassigned");
                 communityRepository.save(c);
             }
         }
 
         // 2. Assign to new community if provided
-        if (newCommunityId != null) {
-            Optional<Community> newCommOpt = communityRepository.findById(newCommunityId);
+        if (parsedCommunityId != null) {
+            Optional<Community> newCommOpt = communityRepository.findById(parsedCommunityId);
             if (newCommOpt.isPresent()) {
                 Community newComm = newCommOpt.get();
                 newComm.setCoordinatorUserId(userId);
@@ -94,7 +105,7 @@ public class UserController {
         
         Long communityId = null;
         Object rawCommId = payload.get("communityId");
-        if (rawCommId != null && !rawCommId.toString().trim().isEmpty()) {
+        if (rawCommId != null && !rawCommId.toString().trim().isEmpty() && !"null".equalsIgnoreCase(rawCommId.toString().trim())) {
             try {
                 communityId = Long.valueOf(rawCommId.toString().trim());
             } catch (NumberFormatException e) {
@@ -133,8 +144,6 @@ public class UserController {
                 community.setCoordinatorUserId(user.getId());
                 if (name != null && !name.trim().isEmpty()) {
                     community.setStudentCoordinator(name);
-                } else if (user.getName() != null && !user.getName().trim().isEmpty()) {
-                    community.setStudentCoordinator(user.getName());
                 } else {
                     community.setStudentCoordinator(email);
                 }

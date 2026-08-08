@@ -67,11 +67,11 @@ const MyCommunitiesPage = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-serif font-bold text-nebulaviolet-400 uppercase tracking-widest flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-nebulaviolet-400" /> Official Chapter Membership
+          <span className="text-xs font-bold text-[#7c3aed] uppercase tracking-widest flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-[#8b5cf6]" /> Official Chapter Membership
           </span>
-          <h1 className="font-serif text-3xl font-extrabold text-white mt-1">My Joined Communities</h1>
-          <p className="text-xs text-stardustsilver-300/70 mt-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 mt-1">My Joined Communities</h1>
+          <p className="text-xs text-slate-600 mt-1">
             College communities where your membership application has been accepted by community coordinators.
           </p>
         </div>
@@ -98,41 +98,41 @@ const MyCommunitiesPage = () => {
                     matchedComm?.description
                   )
                 }
-                className="glass-card p-6 rounded-2xl border border-nebulaviolet-500/30 flex flex-col justify-between space-y-4 cursor-pointer hover:border-whiskeysour-400 hover:shadow-whiskey-hover transition-all duration-300 group"
+                className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:border-[#8b5cf6]/50 hover:shadow-md transition-all duration-300 flex flex-col justify-between space-y-4 cursor-pointer group"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-nebulaviolet-600/30 text-stardustsilver-300 border border-honeygarlic-500/30">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7c3aed] border border-purple-200">
                       {m.communityCategory}
                     </span>
                     <Badge status={m.status}>APPROVED MEMBER</Badge>
                   </div>
 
-                  <h3 className="font-serif text-xl font-bold text-white group-hover:text-nebulaviolet-400 transition-colors flex items-center justify-between">
+                  <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-[#7c3aed] transition-colors flex items-center justify-between">
                     <span>{m.communityName}</span>
-                    <Eye className="w-4 h-4 text-nebulaviolet-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Eye className="w-4 h-4 text-[#8b5cf6] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </h3>
 
-                  <div className="text-[11px] font-mono text-nebulaviolet-300">
-                    Role in Community: <strong>{m.role || 'MEMBER'}</strong>
+                  <div className="text-[11px] font-mono text-[#7c3aed] font-bold">
+                    Role in Community: <strong className="text-slate-800">{m.role || 'MEMBER'}</strong>
                   </div>
 
                   {/* Staff & Coordinators Preview */}
-                  <div className="space-y-1.5 pt-3 border-t border-stardustsilver-300/15 text-xs text-stardustsilver-300/70">
+                  <div className="space-y-1.5 pt-3 border-t border-slate-100 text-xs text-slate-600">
                     <div className="flex items-center justify-between text-[11px]">
                       <span>Faculty Advisor:</span>
-                      <strong className="text-white font-serif">{facultyLead}</strong>
+                      <strong className="text-slate-800 font-bold">{facultyLead}</strong>
                     </div>
                     <div className="flex items-center justify-between text-[11px]">
                       <span>Student Coordinator:</span>
-                      <strong className="text-white font-serif">{studentLead}</strong>
+                      <strong className="text-slate-800 font-bold">{studentLead}</strong>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-stardustsilver-300/15">
-                  <button className="w-full py-2.5 rounded-xl bg-voidcosmos-700/50 hover:bg-nebulaviolet-600/30 border border-nebulaviolet-500/30 text-stardustsilver-300 font-bold text-xs flex items-center justify-center gap-2 transition">
-                    <Users className="w-4 h-4 text-nebulaviolet-400" /> View Coordinators & All Members Roster
+                <div className="pt-3 border-t border-slate-100">
+                  <button className="w-full py-2.5 rounded-xl bg-purple-50 hover:bg-[#8b5cf6] border border-purple-200 hover:border-[#8b5cf6] text-[#7c3aed] hover:text-[#7c3aed] font-bold text-xs flex items-center justify-center gap-2 transition">
+                    <Users className="w-4 h-4" /> View Coordinators & All Members Roster
                   </button>
                 </div>
               </div>
@@ -140,10 +140,10 @@ const MyCommunitiesPage = () => {
           })}
         </div>
       ) : (
-        <div className="glass-panel p-12 rounded-2xl border border-stardustsilver-300/15 text-center space-y-3">
-          <Building2 className="w-10 h-10 text-stardustsilver-300/30 mx-auto" />
-          <h3 className="font-serif text-lg font-bold text-white">No Accepted Community Memberships Yet</h3>
-          <p className="text-xs text-stardustsilver-300/60 max-w-md mx-auto">
+        <div className="bg-white p-12 rounded-2xl border border-slate-200 shadow-sm text-center space-y-3">
+          <Building2 className="w-10 h-10 text-slate-400 mx-auto" />
+          <h3 className="text-lg font-bold text-slate-800">No Accepted Community Memberships Yet</h3>
+          <p className="text-xs text-slate-500 max-w-md mx-auto">
             Once your membership application is accepted by a community coordinator, your joined community will appear here with its full coordinator leadership and member roster.
           </p>
         </div>

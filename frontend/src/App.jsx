@@ -23,6 +23,8 @@ import VolunteerHoursPage from './pages/student/VolunteerHoursPage';
 import AchievementsPage from './pages/student/AchievementsPage';
 import CertificatesPage from './pages/student/CertificatesPage';
 import NotificationsPage from './pages/student/NotificationsPage';
+import MyLeaderGroupPage from './pages/student/MyLeaderGroupPage';
+import GroupOpeningsPage from './pages/student/GroupOpeningsPage';
 
 // Coordinator Pages
 import CoordinatorDashboard from './pages/coordinator/CoordinatorDashboard';
@@ -75,19 +77,19 @@ const AppLayout = ({ children }) => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-deepcharcoal-500 text-pearlsilver-300 overflow-hidden">
-      {/* Sticky Top Navbar */}
+    <div className="h-screen flex flex-col bg-[#eef2f6] text-slate-800 overflow-hidden font-sans">
+      {/* Sticky Top LMS Navbar */}
       <div className="h-16 flex-shrink-0 z-30">
         <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       </div>
 
-      {/* Main Content Body Area */}
-      <div className="flex-1 flex overflow-hidden relative">
+      {/* Main Content Body Area - Light Periwinkle Canvas */}
+      <div className="flex-1 flex overflow-hidden relative p-2 sm:p-4 gap-4 bg-[#eef2f6]">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        {/* Scrollable Page Content */}
-        <main className="flex-1 overflow-y-auto h-[calc(100vh-4rem)]">
-          <div className="max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-8 pb-16">
+        {/* Pure White Main Viewport Canvas matching LMS screenshot */}
+        <main className="flex-1 overflow-y-auto rounded-2xl sm:rounded-3xl bg-[#eef2f6] relative text-slate-800">
+          <div className="max-w-7xl mx-auto w-full p-2 sm:p-4 lg:p-6 space-y-6 pb-16">
             {children}
           </div>
         </main>
@@ -120,6 +122,8 @@ const App = () => {
         <Route path="/student/achievements" element={<ProtectedRoute allowedRole="ROLE_STUDENT"><AchievementsPage /></ProtectedRoute>} />
         <Route path="/student/certificates" element={<ProtectedRoute allowedRole="ROLE_STUDENT"><CertificatesPage /></ProtectedRoute>} />
         <Route path="/student/notifications" element={<ProtectedRoute allowedRole="ROLE_STUDENT"><NotificationsPage /></ProtectedRoute>} />
+        <Route path="/student/group-openings" element={<ProtectedRoute allowedRole="ROLE_STUDENT"><GroupOpeningsPage /></ProtectedRoute>} />
+        <Route path="/student/my-leader-group" element={<ProtectedRoute allowedRole="ROLE_STUDENT"><MyLeaderGroupPage /></ProtectedRoute>} />
 
         {/* Coordinator Protected Routes */}
         <Route path="/coordinator/dashboard" element={<ProtectedRoute allowedRole="ROLE_COMMUNITY_COORDINATOR"><CoordinatorDashboard /></ProtectedRoute>} />

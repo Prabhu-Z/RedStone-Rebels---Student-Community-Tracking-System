@@ -8,13 +8,14 @@ public class CommunityDTO {
     private String facultyCoordinator;
     private String studentCoordinator;
     private Long coordinatorUserId;
+    private Integer maxSize = 100;
     private String status;
     private Long memberCount;
     private Integer upcomingEventCount;
 
     public CommunityDTO() {}
 
-    public CommunityDTO(Long id, String name, String description, String category, String facultyCoordinator, String studentCoordinator, Long coordinatorUserId, String status, Long memberCount, Integer upcomingEventCount) {
+    public CommunityDTO(Long id, String name, String description, String category, String facultyCoordinator, String studentCoordinator, Long coordinatorUserId, Integer maxSize, String status, Long memberCount, Integer upcomingEventCount) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -22,6 +23,7 @@ public class CommunityDTO {
         this.facultyCoordinator = facultyCoordinator;
         this.studentCoordinator = studentCoordinator;
         this.coordinatorUserId = coordinatorUserId;
+        this.maxSize = maxSize != null ? maxSize : 100;
         this.status = status;
         this.memberCount = memberCount;
         this.upcomingEventCount = upcomingEventCount;
@@ -41,6 +43,8 @@ public class CommunityDTO {
     public void setStudentCoordinator(String studentCoordinator) { this.studentCoordinator = studentCoordinator; }
     public Long getCoordinatorUserId() { return coordinatorUserId; }
     public void setCoordinatorUserId(Long coordinatorUserId) { this.coordinatorUserId = coordinatorUserId; }
+    public Integer getMaxSize() { return maxSize; }
+    public void setMaxSize(Integer maxSize) { this.maxSize = maxSize != null ? maxSize : 100; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public Long getMemberCount() { return memberCount; }
@@ -58,6 +62,7 @@ public class CommunityDTO {
         private String facultyCoordinator;
         private String studentCoordinator;
         private Long coordinatorUserId;
+        private Integer maxSize = 100;
         private String status;
         private Long memberCount;
         private Integer upcomingEventCount;
@@ -69,12 +74,13 @@ public class CommunityDTO {
         public CommunityDTOBuilder facultyCoordinator(String facultyCoordinator) { this.facultyCoordinator = facultyCoordinator; return this; }
         public CommunityDTOBuilder studentCoordinator(String studentCoordinator) { this.studentCoordinator = studentCoordinator; return this; }
         public CommunityDTOBuilder coordinatorUserId(Long coordinatorUserId) { this.coordinatorUserId = coordinatorUserId; return this; }
+        public CommunityDTOBuilder maxSize(Integer maxSize) { this.maxSize = maxSize; return this; }
         public CommunityDTOBuilder status(String status) { this.status = status; return this; }
         public CommunityDTOBuilder memberCount(Long memberCount) { this.memberCount = memberCount; return this; }
         public CommunityDTOBuilder upcomingEventCount(Integer upcomingEventCount) { this.upcomingEventCount = upcomingEventCount; return this; }
 
         public CommunityDTO build() {
-            return new CommunityDTO(id, name, description, category, facultyCoordinator, studentCoordinator, coordinatorUserId, status, memberCount, upcomingEventCount);
+            return new CommunityDTO(id, name, description, category, facultyCoordinator, studentCoordinator, coordinatorUserId, maxSize, status, memberCount, upcomingEventCount);
         }
     }
 }

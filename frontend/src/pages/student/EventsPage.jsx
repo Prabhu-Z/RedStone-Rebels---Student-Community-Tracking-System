@@ -164,15 +164,15 @@ const EventsPage = () => {
   return (
     <div className="space-y-8 p-4 lg:p-8">
       {/* Page Header */}
-      <div className="glass-panel-apple p-6 lg:p-8 rounded-3xl border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xl">
         <div>
-          <span className="text-xs font-bold text-[#F2CA50] uppercase tracking-widest flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-[#F2CA50]" /> Campus Events & Gamification (+1 Pt)
+          <span className="text-xs font-bold text-[#7c3aed] uppercase tracking-widest flex items-center gap-1.5">
+            <Calendar className="w-4 h-4 text-[#7c3aed]" /> Campus Events & Gamification (+1 Pt)
           </span>
-          <h1 className="text-3xl font-extrabold text-white mt-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 mt-1">
             Campus Events Schedule
           </h1>
-          <p className="text-xs text-[#D0C5AF] mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Participate in 🌐 <strong>Global Campus Events</strong> or 🔒 <strong>Community Events</strong> (Members Only). Earn <strong>+1 Point</strong> per registration!
           </p>
         </div>
@@ -180,26 +180,26 @@ const EventsPage = () => {
         {isStudentLeader ? (
           <button
             onClick={() => setShowProposeModal(true)}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl honey-btn text-xs font-extrabold shadow-gold-glow hover:scale-105 transition self-start sm:self-auto"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold transition shadow-sm text-xs font-extrabold shadow-sm hover:scale-105 transition self-start sm:self-auto"
           >
             <Crown className="w-4 h-4 text-black" /> Propose New Event (Student Leader)
           </button>
         ) : (
-          <div className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 text-[11px] text-[#F2CA50]/90 flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-[#F2CA50] shrink-0" />
+          <div className="px-3.5 py-2 rounded-xl bg-white/5 border border-slate-200 text-[11px] text-[#7c3aed]/90 flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-[#7c3aed] shrink-0" />
             <span>Event proposals are restricted to assigned <strong>Student Leaders</strong></span>
           </div>
         )}
       </div>
 
       {/* Scope Filter Bar */}
-      <div className="flex items-center gap-3 border-b border-white/10 pb-4 overflow-x-auto">
+      <div className="flex items-center gap-3 border-b border-slate-200 pb-4 overflow-x-auto">
         <button
           onClick={() => setScopeFilter('ALL')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
             scopeFilter === 'ALL'
-              ? 'bg-gradient-to-r from-[#F2CA50] to-amber-500 text-black shadow-gold-glow font-extrabold'
-              : 'bg-white/5 text-[#E2E2E8] hover:text-white border border-white/10'
+              ? 'bg-gradient-to-r from-[#8b5cf6] to-purple-600 text-black shadow-sm font-extrabold'
+              : 'bg-white/5 text-slate-800 hover:text-[#7c3aed] border border-slate-200'
           }`}
         >
           <Calendar className="w-3.5 h-3.5" /> All Campus Events ({events.length})
@@ -209,8 +209,8 @@ const EventsPage = () => {
           onClick={() => setScopeFilter('GLOBAL_EVENT')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
             scopeFilter === 'GLOBAL_EVENT'
-              ? 'bg-gradient-to-r from-[#F2CA50] to-amber-500 text-black shadow-gold-glow font-extrabold'
-              : 'bg-white/5 text-[#E2E2E8] hover:text-white border border-white/10'
+              ? 'bg-gradient-to-r from-[#8b5cf6] to-purple-600 text-black shadow-sm font-extrabold'
+              : 'bg-white/5 text-slate-800 hover:text-[#7c3aed] border border-slate-200'
           }`}
         >
           <Globe className="w-3.5 h-3.5" /> 🌐 Global Events (Open to All)
@@ -220,8 +220,8 @@ const EventsPage = () => {
           onClick={() => setScopeFilter('COMMUNITY_EVENT')}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
             scopeFilter === 'COMMUNITY_EVENT'
-              ? 'bg-gradient-to-r from-[#F2CA50] to-amber-500 text-black shadow-gold-glow font-extrabold'
-              : 'bg-white/5 text-[#E2E2E8] hover:text-white border border-white/10'
+              ? 'bg-gradient-to-r from-[#8b5cf6] to-purple-600 text-black shadow-sm font-extrabold'
+              : 'bg-white/5 text-slate-800 hover:text-[#7c3aed] border border-slate-200'
           }`}
         >
           <Lock className="w-3.5 h-3.5" /> 🔒 Community Events (Members Only)
@@ -239,13 +239,13 @@ const EventsPage = () => {
             return (
               <div
                 key={evt.id}
-                className="glass-card-apple p-6 rounded-2xl border border-white/15 flex flex-col justify-between hover:border-[#F2CA50]/50 transition group cursor-pointer space-y-4 shadow-xl"
+                className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 rounded-2xl border border-slate-200 flex flex-col justify-between hover:border-[#8b5cf6]/50 transition group cursor-pointer space-y-4 shadow-xl"
                 onClick={() => handleOpenRegistrationsModal(evt)}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F2CA50]/15 text-[#F2CA50] border border-[#F2CA50]/30">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-100 text-[#7c3aed] text-[#7c3aed] border border-[#8b5cf6]/30">
                         {evt.eventType}
                       </span>
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
@@ -258,32 +258,32 @@ const EventsPage = () => {
                     <Badge status={evt.status}>{evt.status}</Badge>
                   </div>
 
-                  <h3 className="text-xl font-extrabold text-white group-hover:text-[#F2CA50] transition flex items-center justify-between">
+                  <h3 className="text-xl font-extrabold text-slate-900 group-hover:text-[#7c3aed] transition flex items-center justify-between">
                     <span>{evt.title}</span>
-                    <Eye className="w-4 h-4 text-[#F2CA50] opacity-60 group-hover:opacity-100 transition shrink-0" />
+                    <Eye className="w-4 h-4 text-[#7c3aed] opacity-60 group-hover:opacity-100 transition shrink-0" />
                   </h3>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-[#F2CA50] font-bold">{evt.communityName}</span>
-                    <span className="text-amber-300 text-xs font-bold font-mono">+1 Pt</span>
+                    <span className="text-xs text-[#7c3aed] font-bold">{evt.communityName}</span>
+                    <span className="text-slate-800 text-xs font-bold font-mono">+1 Pt</span>
                   </div>
-                  <p className="text-xs text-[#D0C5AF]/80 leading-relaxed">{evt.description}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed">{evt.description}</p>
 
-                  <div className="grid grid-cols-2 gap-2 text-[11px] text-[#D0C5AF]/80 pt-3 border-t border-white/10">
-                    <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-[#F2CA50]" /> {evt.eventDate}</div>
-                    <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-[#F2CA50]" /> {evt.time} ({evt.duration || '2 Hours'})</div>
-                    <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-[#F2CA50]" /> {evt.venue}</div>
-                    <div className="flex items-center gap-1.5 font-bold text-[#F2CA50]">
-                      <Users className="w-3.5 h-3.5 text-[#F2CA50]" /> {evt.currentRegistrations}/{evt.maxParticipants} Registered
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 pt-3 border-t border-slate-200">
+                    <div className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-[#7c3aed]" /> {evt.eventDate}</div>
+                    <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-[#7c3aed]" /> {evt.time} ({evt.duration || '2 Hours'})</div>
+                    <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-[#7c3aed]" /> {evt.venue}</div>
+                    <div className="flex items-center gap-1.5 font-bold text-[#7c3aed]">
+                      <Users className="w-3.5 h-3.5 text-[#7c3aed]" /> {evt.currentRegistrations}/{evt.maxParticipants} Registered
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-white/10 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                <div className="pt-3 border-t border-slate-200 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => handleOpenRegistrationsModal(evt)}
-                    className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs flex items-center gap-1.5 transition shrink-0"
+                    className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-slate-200 text-slate-900 font-bold text-xs flex items-center gap-1.5 transition shrink-0"
                   >
-                    <Users className="w-3.5 h-3.5 text-[#F2CA50]" /> Roster ({evt.currentRegistrations})
+                    <Users className="w-3.5 h-3.5 text-[#7c3aed]" /> Roster ({evt.currentRegistrations})
                   </button>
 
                   {evt.isUserRegistered ? (
@@ -293,7 +293,7 @@ const EventsPage = () => {
                       </div>
                       <button
                         onClick={() => setQrModalEvent(evt)}
-                        className="px-3 py-2 rounded-xl honey-btn text-xs font-bold flex items-center gap-1 shadow-md shrink-0"
+                        className="px-3 py-2 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold transition shadow-sm text-xs font-bold flex items-center gap-1 shadow-md shrink-0"
                       >
                         <QrCode className="w-4 h-4" /> QR Ticket
                       </button>
@@ -302,13 +302,13 @@ const EventsPage = () => {
                     <button
                       onClick={() => handleRegister(evt.id, evt)}
                       disabled={evt.status === 'CANCELLED' || evt.currentRegistrations >= evt.maxParticipants}
-                      className="flex-1 py-2 rounded-xl honey-btn text-xs font-bold shadow-md hover:scale-[1.02] transition disabled:opacity-50"
+                      className="flex-1 py-2 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold transition shadow-sm text-xs font-bold shadow-md hover:scale-[1.02] transition disabled:opacity-50"
                     >
                       Register (+1 Pt)
                     </button>
                   ) : (
-                    <div className="flex-1 p-2 rounded-xl bg-amber-500/10 text-amber-300 font-bold text-[11px] text-center border border-amber-500/30 flex items-center justify-center gap-1">
-                      <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" /> Community Members Only
+                    <div className="flex-1 p-2 rounded-xl bg-purple-600/10 text-slate-800 font-bold text-[11px] text-center border border-purple-600/30 flex items-center justify-center gap-1">
+                      <Lock className="w-3.5 h-3.5 text-[#7c3aed] shrink-0" /> Community Members Only
                     </div>
                   )}
                 </div>
@@ -317,17 +317,17 @@ const EventsPage = () => {
           })}
         </div>
       ) : (
-        <div className="p-12 text-center text-xs text-[#D0C5AF]/60 glass-panel-apple rounded-3xl border border-dashed border-white/15 space-y-4 shadow-xl">
-          <FolderKanban className="w-10 h-10 text-[#F2CA50]/40 mx-auto" />
+        <div className="p-12 text-center text-xs text-slate-600/60 bg-white border border-slate-200 shadow-sm rounded-3xl rounded-3xl border border-dashed border-slate-200 space-y-4 shadow-xl">
+          <FolderKanban className="w-10 h-10 text-[#7c3aed]/40 mx-auto" />
           <div>
-            <h3 className="text-base font-bold text-white">No Events Found Matching Filter ({scopeFilter})</h3>
-            <p className="text-xs text-[#D0C5AF] mt-1 max-w-md mx-auto">
+            <h3 className="text-base font-bold text-slate-900">No Events Found Matching Filter ({scopeFilter})</h3>
+            <p className="text-xs text-slate-600 mt-1 max-w-md mx-auto">
               Join communities to unlock exclusive community events!
             </p>
           </div>
           <Link
             to="/student/communities"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl honey-btn text-black font-extrabold text-xs shadow-gold-glow hover:scale-105 transition"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold transition shadow-sm text-black font-extrabold text-xs shadow-sm hover:scale-105 transition"
           >
             <Users className="w-4 h-4" /> Explore & Join Communities
           </Link>

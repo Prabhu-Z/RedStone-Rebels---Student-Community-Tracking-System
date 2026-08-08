@@ -255,9 +255,15 @@ public class TaskService {
         TaskSubmission submission = taskSubmissionRepository.findById(submissionId)
                 .orElseThrow(() -> new ResourceNotFoundException("TaskSubmission", "id", submissionId));
 
-        submission.setProofLink(proofLink);
-        submission.setProofFileName(proofFileName);
-        submission.setProofFileUrl(proofFileUrl);
+        if ((proofLink == null || proofLink.trim().isEmpty()) &&
+            (proofFileName == null || proofFileName.trim().isEmpty()) &&
+            (proofFileUrl == null || proofFileUrl.trim().isEmpty())) {
+            throw new IllegalArgumentException("Task submission failed: You must provide a Proof Link or upload a proof document/screenshot.");
+        }
+
+        submission.setProofLink(proofLink != null ? proofLink.trim() : null);
+        submission.setProofFileName(proofFileName != null ? proofFileName.trim() : null);
+        submission.setProofFileUrl(proofFileUrl != null ? proofFileUrl.trim() : null);
         submission.setStatus("SUBMITTED");
         submission.setSubmittedAt(LocalDateTime.now());
 

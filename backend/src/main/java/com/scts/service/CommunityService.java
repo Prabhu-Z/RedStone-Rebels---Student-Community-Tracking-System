@@ -50,6 +50,9 @@ public class CommunityService {
                 .coordinatorUserId(dto.getCoordinatorUserId())
                 .status(dto.getStatus() != null ? dto.getStatus() : "ACTIVE")
                 .build();
+        if (dto.getMaxSize() != null) {
+            community.setMaxSize(dto.getMaxSize());
+        }
 
         Community saved = communityRepository.save(community);
         return mapToDTO(saved);
@@ -65,8 +68,22 @@ public class CommunityService {
         if (dto.getCategory() != null) community.setCategory(dto.getCategory());
         if (dto.getFacultyCoordinator() != null) community.setFacultyCoordinator(dto.getFacultyCoordinator());
         if (dto.getStudentCoordinator() != null) community.setStudentCoordinator(dto.getStudentCoordinator());
-        if (dto.getCoordinatorUserId() != null) community.setCoordinatorUserId(dto.getCoordinatorUserId());
+        if (dto.getMaxSize() != null) community.setMaxSize(dto.getMaxSize());
+        community.setCoordinatorUserId(dto.getCoordinatorUserId());
         if (dto.getStatus() != null) community.setStatus(dto.getStatus());
+
+        Community updated = communityRepository.save(community);
+        return mapToDTO(updated);
+    }
+
+    @Transactional
+    public CommunityDTO removeCoordinator(Long id) {
+        Community community = communityRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Community", "id", id));
+
+        community.setCoordinatorUserId(null);
+        community.setFacultyCoordinator("Unassigned");
+        community.setStudentCoordinator("Unassigned");
 
         Community updated = communityRepository.save(community);
         return mapToDTO(updated);
@@ -84,6 +101,7 @@ public class CommunityService {
                 .facultyCoordinator(c.getFacultyCoordinator())
                 .studentCoordinator(c.getStudentCoordinator())
                 .coordinatorUserId(c.getCoordinatorUserId())
+                .maxSize(c.getMaxSize() != null ? c.getMaxSize() : 100)
                 .status(c.getStatus())
                 .memberCount(memberCount)
                 .upcomingEventCount(upcomingEventCount)

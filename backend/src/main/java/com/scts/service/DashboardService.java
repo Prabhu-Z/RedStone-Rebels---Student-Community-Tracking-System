@@ -131,19 +131,24 @@ public class DashboardService {
     }
 
     public CoordinatorDashboard getCoordinatorDashboardByUserId(Long userId) {
-        Long targetCommunityId = 1L;
         if (userId != null) {
             List<Community> comms = communityRepository.findByCoordinatorUserId(userId);
             if (!comms.isEmpty()) {
-                targetCommunityId = comms.get(0).getId();
-            } else {
-                targetCommunityId = communityRepository.findAll().stream()
-                        .findFirst()
-                        .map(Community::getId)
-                        .orElse(1L);
+                return getCoordinatorDashboard(comms.get(0).getId());
             }
         }
-        return getCoordinatorDashboard(targetCommunityId);
+        return CoordinatorDashboard.builder()
+                .community(null)
+                .totalMembers(0L)
+                .pendingRequestsCount(0L)
+                .upcomingEventsCount(0L)
+                .completedEventsCount(0L)
+                .averageAttendancePercentage(0.0)
+                .totalVolunteerHours(0.0)
+                .totalAchievements(0)
+                .upcomingEvents(Collections.emptyList())
+                .pendingRequests(Collections.emptyList())
+                .build();
     }
 
     public FacultyDashboard getFacultyDashboard() {

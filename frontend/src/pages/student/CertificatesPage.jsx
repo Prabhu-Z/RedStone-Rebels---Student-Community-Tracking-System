@@ -29,33 +29,33 @@ const CertificatesPage = () => {
   return (
     <div className="space-y-8 p-4 lg:p-8">
       <div>
-        <h1 className="font-serif text-3xl font-extrabold text-white">Official Verified Certificates</h1>
-        <p className="text-xs text-stardustsilver-300/70 mt-1">Download official workshop completion, participation, and winner certificates.</p>
+        <h1 className="font-sans text-3xl font-extrabold text-slate-900">Official Verified Certificates</h1>
+        <p className="text-xs text-slate-600 mt-1">Download official workshop completion, participation, and winner certificates.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {certificates.map((cert) => (
-          <div key={cert.id} className="glass-card p-6 rounded-2xl border border-stardustsilver-300/15 space-y-4 hover:border-warmgold-500/30 transition">
+          <div key={cert.id} className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 rounded-2xl border border-slate-100 space-y-4 hover:border-slate-200 transition">
             <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-chestnut-700/30 border border-chestnut-500/30 flex items-center justify-center text-warmgold-400">
+              <div className="w-12 h-12 rounded-2xl bg-chestnut-700/30 border border-chestnut-500/30 flex items-center justify-center text-[#7c3aed]">
                 <FileCheck className="w-6 h-6" />
               </div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-warmgold-500/20 text-warmgold-400 border border-warmgold-500/30">
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-600/20 text-[#7c3aed] border border-slate-200">
                 {cert.certificateType}
               </span>
             </div>
 
             <div>
-              <h3 className="font-serif text-lg font-bold text-white">{cert.eventTitle || 'Community Certificate'}</h3>
-              <p className="text-xs text-stardustsilver-300/60 font-mono mt-0.5">Issued: {cert.issuedDate}</p>
+              <h3 className="font-sans text-lg font-bold text-slate-900">{cert.eventTitle || 'Community Certificate'}</h3>
+              <p className="text-xs text-slate-500 font-mono mt-0.5">Issued: {cert.issuedDate}</p>
             </div>
 
-            <div className="pt-3 border-t border-stardustsilver-300/15 flex items-center justify-between">
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <a
                 href={cert.fileUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-2.5 rounded-xl bg-warmgold-500/20 hover:bg-warmgold-500/30 border border-warmgold-500/40 text-warmgold-300 font-bold text-xs flex items-center justify-center gap-2 transition"
+                className="w-full py-2.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-200 text-[#8b5cf6] font-bold text-xs flex items-center justify-center gap-2 transition"
               >
                 <Download className="w-4 h-4" /> Download Certificate
               </a>

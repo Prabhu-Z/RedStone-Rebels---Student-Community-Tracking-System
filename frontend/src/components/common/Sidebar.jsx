@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 import {
   LayoutDashboard,
   Users,
@@ -20,18 +21,70 @@ import {
   ShieldCheck,
   GraduationCap,
   Sparkles,
-  Trophy
+  Trophy,
+  Crown
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { user } = useAuth();
+  const [isStudentLeader, setIsStudentLeader] = useState(false);
+
+  useEffect(() => {
+    if (!user || user.role !== 'ROLE_STUDENT') return;
+    const checkLeaderStatus = async () => {
+      try {
+        const studentRes = await api.get(`/students/user/${user.id}`).catch(() => null);
+        if (studentRes?.data?.id) {
+          const studentId = studentRes.data.id;
+          const memRes = await api.get(`/memberships/student/${studentId}`).catch(() => ({ data: [] }));
+          const activeMems = (memRes.data || []).filter(m => m.status === 'APPROVED');
+          
+          const leaderRoles = [
+            'STUDENT_COORDINATOR',
+            'COMMUNITY_COORDINATOR',
+            'EVENT_ORGANIZER',
+            'TEAM_LEAD',
+            'SECRETARY',
+            'JOINT_SECRETARY',
+            'PRESIDENT',
+            'LEADER',
+            'COORDINATOR'
+          ];
+
+          const hasLeaderRoleInMem = activeMems.some(m =>
+            m.role && leaderRoles.includes(m.role.toUpperCase())
+          );
+
+          const groupsRes = await api.get(`/community-groups/student/${studentId}`).catch(() => ({ data: [] }));
+          const ledGroups = (groupsRes.data || []).filter(g => g.leaderStudentId === studentId);
+
+          const rawUserRole = (user.role || '').toUpperCase();
+          const isUserLeaderRole = rawUserRole.includes('COORDINATOR') || rawUserRole.includes('ORGANIZER') || rawUserRole.includes('LEAD');
+
+          setIsStudentLeader(hasLeaderRoleInMem || isUserLeaderRole || ledGroups.length > 0);
+        }
+      } catch (e) {
+        console.error('Error checking sidebar leader status:', e);
+      }
+    };
+    checkLeaderStatus();
+  }, [user]);
+
   if (!user) return null;
 
   const role = user.role;
 
-  const studentLinks = [
+  const baseStudentLinks = [
     { to: '/student/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/student/my-communities', icon: FolderKanban, label: 'My Joined Communities' },
+    { to: '/student/group-openings', icon: Users, label: 'Group Openings' },
+  ];
+
+  if (isStudentLeader) {
+    baseStudentLinks.push({ to: '/student/my-leader-group', icon: Crown, label: 'My Leader Group' });
+  }
+
+  baseStudentLinks.push(
     { to: '/student/tasks', icon: CheckSquare, label: 'Tasks & Proofs' },
     { to: '/student/activity-requests', icon: Sparkles, label: 'Activity Requests' },
     { to: '/student/leaderboard', icon: Trophy, label: 'Community Leaderboard' },
@@ -42,8 +95,10 @@ const Sidebar = ({ isOpen, onClose }) => {
     { to: '/student/volunteer-hours', icon: CheckCircle2, label: 'Volunteer Hours' },
     { to: '/student/achievements', icon: Award, label: 'Achievements' },
     { to: '/student/certificates', icon: FileCheck, label: 'Certificates' },
-    { to: '/student/notifications', icon: Bell, label: 'Notifications' },
-  ];
+    { to: '/student/notifications', icon: Bell, label: 'Notifications' }
+  );
+
+  const studentLinks = baseStudentLinks;
 
   const coordinatorLinks = [
     { to: '/coordinator/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -82,28 +137,28 @@ const Sidebar = ({ isOpen, onClose }) => {
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/80 backdrop-blur-md lg:hidden"
+          className="fixed inset-0 z-40 bg-white text-slate-900/80 backdrop-blur-md lg:hidden"
         />
       )}
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed lg:static top-0 left-0 z-40 lg:z-20 h-full lg:h-[calc(100vh-4rem)] w-64 sidebar-glass flex flex-col transition-transform duration-300 ease-in-out border-r border-white/10 flex-shrink-0 ${
+        className={`fixed lg:static top-0 left-0 z-40 lg:z-20 h-full lg:h-[calc(100vh-4rem)] w-64 bg-white flex flex-col transition-transform duration-300 ease-in-out border-r border-slate-200 flex-shrink-0 text-slate-800 ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        <div className="p-5 border-b border-white/10">
+        <div className="p-5 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            {role === 'ROLE_STUDENT' && <GraduationCap className="w-5 h-5 text-[#F2CA50]" />}
-            {role === 'ROLE_COMMUNITY_COORDINATOR' && <ShieldCheck className="w-5 h-5 text-[#F2CA50]" />}
-            {role === 'ROLE_FACULTY' && <Sparkles className="w-5 h-5 text-[#F2CA50]" />}
-            <h2 className="text-sm font-bold text-[#E2E2E8] tracking-tight">
+            {role === 'ROLE_STUDENT' && <GraduationCap className="w-5 h-5 text-[#8b5cf6]" />}
+            {role === 'ROLE_COMMUNITY_COORDINATOR' && <ShieldCheck className="w-5 h-5 text-[#8b5cf6]" />}
+            {role === 'ROLE_FACULTY' && <Sparkles className="w-5 h-5 text-[#8b5cf6]" />}
+            <h2 className="text-sm font-bold text-slate-800 tracking-tight">
               {role === 'ROLE_STUDENT' && 'Student Workspace'}
               {role === 'ROLE_COMMUNITY_COORDINATOR' && 'Coordinator Workspace'}
               {role === 'ROLE_FACULTY' && 'Faculty Workspace'}
             </h2>
           </div>
-          <p className="text-[10px] text-[#F2CA50] opacity-80 mt-1 font-mono uppercase tracking-wider">SCTS Campus Platform</p>
+          <p className="text-[10px] text-[#8b5cf6] font-semibold mt-1 font-mono uppercase tracking-wider">SCTS Campus Platform</p>
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3.5 space-y-1">
@@ -117,19 +172,19 @@ const Sidebar = ({ isOpen, onClose }) => {
                 className={({ isActive }) =>
                   `group relative flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-300 ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#F2CA50] to-[#FFE088] text-[#3C2F00] font-extrabold shadow-gold-glow translate-x-1'
-                      : 'text-[#D0C5AF] hover:text-white hover:bg-white/5 hover:translate-x-1.5'
+                      ? 'bg-[#8b5cf6] text-white font-extrabold shadow-lg shadow-purple-500/25 translate-x-1'
+                      : 'text-slate-600 hover:text-[#7c3aed] hover:bg-slate-100 hover:translate-x-1'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
                     <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-[#3C2F00] font-black' : 'text-[#F2CA50] group-hover:scale-110 transition-transform'}`} />
+                      <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-white font-black' : 'text-[#8b5cf6] group-hover:scale-110 transition-transform'}`} />
                       <span>{link.label}</span>
                     </div>
                     {isActive && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#3C2F00] animate-ping" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
                     )}
                   </>
                 )}
@@ -139,14 +194,14 @@ const Sidebar = ({ isOpen, onClose }) => {
         </nav>
 
         {/* User Profile Footer */}
-        <div className="p-4 border-t border-white/10">
-          <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3 shadow-inner hover:border-[#F2CA50]/30 transition">
-            <div className="w-8 h-8 rounded-full bg-[#F2CA50] flex items-center justify-center text-[#3C2F00] font-bold text-xs shadow-md">
+        <div className="p-4 border-t border-slate-100">
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3 shadow-sm hover:border-[#8b5cf6]/40 transition">
+            <div className="w-8 h-8 rounded-full bg-[#8b5cf6] flex items-center justify-center text-white font-bold text-xs shadow-md">
               {user.name ? user.name[0] : 'U'}
             </div>
             <div className="overflow-hidden">
-              <div className="text-xs font-bold text-white truncate">{user.name || 'User'}</div>
-              <div className="text-[10px] text-[#D0C5AF] truncate font-mono">{user.email}</div>
+              <div className="text-xs font-bold text-slate-800 truncate">{user.name || 'User'}</div>
+              <div className="text-[10px] text-slate-500 truncate font-mono">{user.email}</div>
             </div>
           </div>
         </div>

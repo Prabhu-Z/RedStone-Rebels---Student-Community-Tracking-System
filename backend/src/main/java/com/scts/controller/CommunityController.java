@@ -1,10 +1,13 @@
 package com.scts.controller;
 
+import com.scts.dto.BulkImportResultDTO;
 import com.scts.dto.CommunityDTO;
 import com.scts.service.CommunityService;
+import com.scts.service.StudentImportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,10 +17,12 @@ import java.util.List;
 public class CommunityController {
 
     private final CommunityService communityService;
+    private final StudentImportService studentImportService;
 
     @Autowired
-    public CommunityController(CommunityService communityService) {
+    public CommunityController(CommunityService communityService, StudentImportService studentImportService) {
         this.communityService = communityService;
+        this.studentImportService = studentImportService;
     }
 
     @GetMapping
@@ -38,5 +43,18 @@ public class CommunityController {
     @PutMapping("/{id}")
     public ResponseEntity<CommunityDTO> updateCommunity(@PathVariable Long id, @RequestBody CommunityDTO dto) {
         return ResponseEntity.ok(communityService.updateCommunity(id, dto));
+    }
+
+    @PutMapping("/{id}/remove-coordinator")
+    public ResponseEntity<CommunityDTO> removeCoordinatorFromCommunity(@PathVariable Long id) {
+        return ResponseEntity.ok(communityService.removeCoordinator(id));
+    }
+
+    @PostMapping("/{id}/import-students")
+    public ResponseEntity<BulkImportResultDTO> importStudentsToCommunity(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        BulkImportResultDTO result = studentImportService.importStudentsToCommunity(id, file);
+        return ResponseEntity.ok(result);
     }
 }

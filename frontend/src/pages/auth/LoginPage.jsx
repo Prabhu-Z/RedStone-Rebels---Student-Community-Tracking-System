@@ -139,23 +139,23 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
-      <div className="glass-panel max-w-md w-full p-8 rounded-3xl border border-[#F2CA50]/30 shadow-2xl relative z-10">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-[#eef2f6]">
+      <div className="bg-white border border-slate-200 shadow-xl rounded-3xl max-w-md w-full p-8 relative z-10">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-[#F2CA50]/10 border border-[#F2CA50]/20 flex items-center justify-center shadow-lg">
-            <span className="material-symbols-outlined text-[#F2CA50] text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+          <div className="w-10 h-10 rounded-2xl bg-purple-100 text-[#7c3aed] border border-purple-200 flex items-center justify-center shadow-sm">
+            <span className="material-symbols-outlined text-[#8b5cf6] text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
               auto_awesome
             </span>
           </div>
           <div>
-            <h2 className="font-['Playfair_Display',serif] text-2xl font-bold text-white leading-none">Sign In</h2>
-            <p className="text-[10px] uppercase tracking-widest text-[#F2CA50] opacity-80 mt-0.5">SCTS Campus Portal</p>
+            <h2 className="text-2xl font-extrabold text-slate-900 leading-none">Sign In</h2>
+            <p className="text-[10px] uppercase tracking-widest text-[#7c3aed] font-bold mt-0.5">SCTS Campus Portal</p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-2.5 shadow-lg">
-            <UserX className="w-4 h-4 shrink-0 text-rose-400 mt-0.5" />
+          <div className="mb-6 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-start gap-2.5 shadow-sm">
+            <UserX className="w-4 h-4 shrink-0 text-rose-600 mt-0.5" />
             <span className="leading-relaxed font-semibold">{error}</span>
           </div>
         )}
@@ -167,9 +167,9 @@ const LoginPage = () => {
               <button
                 type="button"
                 onClick={handlePlaceholderGoogleClick}
-                className="w-full py-2.5 px-4 rounded-full bg-[#1e1e24] border border-white/20 text-white text-xs font-semibold flex items-center justify-center gap-3 hover:bg-[#282830] transition shadow-md"
+                className="w-full py-2.5 px-4 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-xs font-bold flex items-center justify-center gap-3 transition shadow-sm"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
@@ -184,9 +184,9 @@ const LoginPage = () => {
 
           <div className="relative my-6 text-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10"></div>
+              <div className="w-full border-t border-slate-200"></div>
             </div>
-            <span className="relative z-10 px-3 bg-[#121216] text-[11px] text-[#D0C5AF]/60 font-mono uppercase tracking-widest">
+            <span className="relative z-10 px-3 bg-white text-[11px] text-slate-500 font-mono font-bold uppercase tracking-widest">
               or sign in with password
             </span>
           </div>
@@ -195,22 +195,22 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-semibold text-[#D0C5AF] uppercase tracking-wider">Email Address</label>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Email Address</label>
               {emailExistsStatus !== null && (
                 <span
                   className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
                     emailExistsStatus
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                      : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      : 'bg-purple-100 text-[#7c3aed] border border-purple-200'
                   }`}
                 >
                   {emailExistsStatus ? (
                     <>
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Registered
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Registered
                     </>
                   ) : (
                     <>
-                      <UserPlus className="w-3 h-3 text-amber-400" /> Not Registered
+                      <UserPlus className="w-3 h-3 text-[#7c3aed]" /> Not Registered
                     </>
                   )}
                 </span>
@@ -218,29 +218,29 @@ const LoginPage = () => {
             </div>
 
             <div className="relative">
-              <Mail className="w-4 h-4 text-[#D0C5AF]/40 absolute left-3 top-3.5" />
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="student@scts.edu"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/20 text-sm focus:outline-none focus:border-[#F2CA50]/60 transition"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-[#8b5cf6] transition"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#D0C5AF] uppercase tracking-wider mb-1">Password</label>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-[#D0C5AF]/40 absolute left-3 top-3.5" />
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/20 text-sm focus:outline-none focus:border-[#F2CA50]/60 transition"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-[#8b5cf6] transition"
               />
             </div>
           </div>
@@ -248,24 +248,24 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3 rounded-xl honey-btn text-[#3C2F00] font-extrabold text-sm shadow-gold-glow flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full mt-2 py-3 rounded-xl bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-extrabold text-sm shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 transition active:scale-95"
           >
             {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-white/10">
-          <p className="text-xs text-center text-[#F2CA50] font-semibold mb-2">Quick Demo Accounts (click to autofill):</p>
+        <div className="mt-8 pt-6 border-t border-slate-100">
+          <p className="text-xs text-center text-[#7c3aed] font-bold mb-2">Quick Demo Accounts (click to autofill):</p>
           <div className="flex flex-wrap gap-1.5 justify-center text-[11px]">
-            <button onClick={() => fillQuickDemo('student@scts.edu')} className="px-2.5 py-1 rounded-md bg-[#F2CA50]/15 text-[#F2CA50] hover:bg-[#F2CA50]/30 transition">Student Demo</button>
-            <button onClick={() => fillQuickDemo('coordinator@scts.edu')} className="px-2.5 py-1 rounded-md bg-white/10 text-white hover:bg-white/20 transition">Coordinator Demo</button>
-            <button onClick={() => fillQuickDemo('faculty@scts.edu')} className="px-2.5 py-1 rounded-md bg-[#F2CA50]/15 text-[#F2CA50] hover:bg-[#F2CA50]/30 transition">Faculty Demo</button>
+            <button onClick={() => fillQuickDemo('student@scts.edu')} className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-[#7c3aed] font-bold border border-purple-200 transition shadow-sm">Student Demo</button>
+            <button onClick={() => fillQuickDemo('coordinator@scts.edu')} className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-[#7c3aed] font-bold border border-purple-200 transition shadow-sm">Coordinator Demo</button>
+            <button onClick={() => fillQuickDemo('faculty@scts.edu')} className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-[#7c3aed] font-bold border border-purple-200 transition shadow-sm">Faculty Demo</button>
           </div>
         </div>
 
-        <div className="mt-6 text-center text-xs text-[#D0C5AF]">
+        <div className="mt-6 text-center text-xs text-slate-600 font-medium">
           Don't have an account?{' '}
-          <Link to="/register" className="text-[#F2CA50] hover:underline font-bold">
+          <Link to="/register" className="text-[#7c3aed] hover:underline font-extrabold">
             Register Student Account
           </Link>
         </div>

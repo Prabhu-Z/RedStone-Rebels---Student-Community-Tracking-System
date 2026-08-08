@@ -22,4 +22,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
     @Query("SELECT COUNT(m) FROM Membership m WHERE m.community.id = :communityId AND (m.status = 'APPROVED' OR m.status = 'ACTIVE')")
     Long countActiveMembersByCommunityId(@Param("communityId") Long communityId);
+
+    long countByCommunityIdAndStatus(Long communityId, MembershipStatus status);
 }

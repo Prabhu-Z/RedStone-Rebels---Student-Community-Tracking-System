@@ -29,6 +29,9 @@ public class Community {
     @Column(name = "coordinator_user_id")
     private Long coordinatorUserId;
 
+    @Column(name = "max_size", nullable = false)
+    private Integer maxSize = 100;
+
     @Column(nullable = false)
     private String status;
 
@@ -71,6 +74,8 @@ public class Community {
     public void setStudentCoordinator(String studentCoordinator) { this.studentCoordinator = studentCoordinator; }
     public Long getCoordinatorUserId() { return coordinatorUserId; }
     public void setCoordinatorUserId(Long coordinatorUserId) { this.coordinatorUserId = coordinatorUserId; }
+    public Integer getMaxSize() { return maxSize; }
+    public void setMaxSize(Integer maxSize) { this.maxSize = maxSize != null ? maxSize : 100; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }

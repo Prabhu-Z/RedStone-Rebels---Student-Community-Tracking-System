@@ -1,21 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Badge from '../../components/common/Badge';
-import { Check, X } from 'lucide-react';
+import { Check, X, Building2 } from 'lucide-react';
 
 const VolunteerManagePage = () => {
+  const { user } = useAuth();
+  const [community, setCommunity] = useState(null);
   const [hoursList, setHoursList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchHours();
-  }, []);
+    fetchCommunityAndHours();
+  }, [user]);
 
-  const fetchHours = async () => {
+  const fetchCommunityAndHours = async () => {
     try {
-      const res = await api.get('/volunteer-hours/pending');
-      setHoursList(res.data);
+      const commRes = await api.get('/communities');
+      let myCommunity = null;
+
+      if (commRes.data && commRes.data.length > 0) {
+        myCommunity =
+          commRes.data.find(
+            (c) =>
+              c.coordinatorUserId === user?.id ||
+              (user?.email &&
+                (c.studentCoordinator?.toLowerCase().includes(user.email.toLowerCase()) ||
+                  c.facultyCoordinator?.toLowerCase().includes(user.email.toLowerCase())))
+          ) || null;
+      }
+
+      setCommunity(myCommunity);
+
+      if (myCommunity?.id) {
+        const res = await api.get('/volunteer-hours/pending');
+        setHoursList(res.data || []);
+      }
     } catch (err) {
       console.error('Error fetching volunteer hours:', err);
     } finally {
@@ -26,7 +47,7 @@ const VolunteerManagePage = () => {
   const handleVerify = async (id, status) => {
     try {
       await api.put(`/volunteer-hours/${id}/verify?status=${status}`);
-      fetchHours();
+      fetchCommunityAndHours();
     } catch (err) {
       alert('Verification status update failed.');
     }
@@ -34,17 +55,33 @@ const VolunteerManagePage = () => {
 
   if (loading) return <LoadingSpinner label="Loading pending volunteer hours..." />;
 
+  if (!community || !community.id) {
+    return (
+      <div className="space-y-8 p-4 lg:p-8">
+        <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-12 rounded-3xl border border-dashed border-slate-200 text-center space-y-4 shadow-xl">
+          <Building2 className="w-16 h-16 text-[#7c3aed]/50 mx-auto" />
+          <div className="space-y-2">
+            <h2 className="text-[#7c3aed]xl font-extrabold text-slate-900">No Communities Assigned</h2>
+            <p className="text-xs md:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+              You currently have no assigned community. Please contact your Faculty Admin to be assigned as a Community Coordinator.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 p-4 lg:p-8">
       <div>
-        <h1 className="font-serif text-3xl font-extrabold text-white">Volunteer Hours Verification</h1>
-        <p className="text-xs text-stardustsilver-300/70 mt-1">Review and approve student service hours before inclusion in official totals.</p>
+        <h1 className="font-sans text-3xl font-extrabold text-slate-900">Volunteer Hours Verification</h1>
+        <p className="text-xs text-slate-600 mt-1">Review and approve student service hours before inclusion in official totals.</p>
       </div>
 
-      <div className="glass-panel p-6 lg:p-8 rounded-3xl border border-stardustsilver-300/15">
+      <div className="bg-white border border-slate-200 shadow-sm rounded-3xl p-6 lg:p-8 rounded-3xl border border-slate-100">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-almond-200">
-            <thead className="bg-arsenic-900 text-warmgold-400 font-serif border-b border-stardustsilver-300/15">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-white text-[#7c3aed] font-sans border-b border-slate-100">
               <tr>
                 <th className="p-3">Student Name</th>
                 <th className="p-3">Register Code</th>
@@ -58,11 +95,11 @@ const VolunteerManagePage = () => {
             <tbody className="divide-y divide-almond-300/5">
               {hoursList && hoursList.length > 0 ? (
                 hoursList.map((h) => (
-                  <tr key={h.id} className="hover:bg-arsenic-800/40">
-                    <td className="p-3 font-serif font-bold text-white">{h.studentName}</td>
+                  <tr key={h.id} className="hover:bg-slate-100/40">
+                    <td className="p-3 font-sans font-bold text-slate-900">{h.studentName}</td>
                     <td className="p-3 font-mono">{h.studentCode}</td>
                     <td className="p-3 font-medium text-almond-100">{h.activityName}</td>
-                    <td className="p-3 font-serif text-warmgold-400">{h.communityName}</td>
+                    <td className="p-3 font-sans text-[#7c3aed]">{h.communityName}</td>
                     <td className="p-3 font-mono font-bold text-emerald-400">{h.hours} hrs</td>
                     <td className="p-3 font-mono">{h.activityDate}</td>
                     <td className="p-3 text-right flex items-center justify-end gap-2">
@@ -83,7 +120,7 @@ const VolunteerManagePage = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-stardustsilver-300/50">No pending volunteer hours to verify.</td>
+                  <td colSpan={7} className="p-8 text-center text-slate-500">No pending volunteer hours to verify.</td>
                 </tr>
               )}
             </tbody>
